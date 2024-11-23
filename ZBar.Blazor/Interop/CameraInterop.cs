@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace ZBar.Blazor
+namespace ZBar.Blazor.Interop
 {
-    public class CameraInterop : IAsyncDisposable
+    internal class CameraInterop : IAsyncDisposable
     {
         private readonly Lazy<Task<IJSObjectReference>> moduleTask;
 
@@ -13,23 +13,16 @@ namespace ZBar.Blazor
                 "import", "./_content/ZBar.Blazor/camera.js").AsTask());
         }
 
-        public async Task StartVideoFeed(ElementReference video)
+        public async Task StartVideoFeed(ElementReference video, ElementReference canvas, int scanInterval)
         {
             var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("window.zBarBlazor.camera.startVideoFeed", video);
+            await module.InvokeVoidAsync("startVideoFeed", video, canvas, scanInterval);
         }
 
         public async Task EndVideoFeed(ElementReference video)
         {
             var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("window.zBarBlazor.camera.endVideoFeed", video);
-        }
-
-        public async ValueTask<byte[]> CaptureImage(ElementReference video, ElementReference canvas, int imageWidth, int imageHeight)
-        {
-            var module = await moduleTask.Value;
-            var base64Image = await module.InvokeAsync<string>("window.zBarBlazor.camera.captureImage", video, canvas, imageWidth, imageHeight);
-            return Convert.FromBase64String(base64Image);
+            await module.InvokeVoidAsync("endVideoFeed", video);
         }
 
         public async ValueTask DisposeAsync()

@@ -1,0 +1,14 @@
+﻿::deep .zBarCamera {
+    height: 80%;
+    width: 100%;
+}
+
+::deep .cameraView {
+    height: 100%;
+    width: 100%;
+    background-color: black;
+}
+
+.tools {
+    margin: 8px 0;
+}

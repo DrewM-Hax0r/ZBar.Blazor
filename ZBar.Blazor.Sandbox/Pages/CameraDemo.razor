@@ -1,0 +1,48 @@
+﻿@page "/camera"
+@using ZBar.Blazor.Dtos
+
+<PageTitle>ZBarCamera</PageTitle>
+<div class="page">
+    <ZBarCamera @ref="Camera" />
+    <div class="tools">
+        <button @onclick="StartVideoFeed">Start</button>
+        <button @onclick="EndVideoFeed">Stop</button>
+        <select @bind="@SelectedHardwareDeviceId">
+            <option selected disabled>Select a video device</option>
+            @if (AvailableHardwareDevices != null)
+            {
+                @foreach(var device in AvailableHardwareDevices) {
+                    <option value="@device.Id">@device.Name</option>
+                }
+            }
+        </select>
+    </div>
+</div>
+
+@code {
+    private ZBarCamera Camera;
+
+    private HardwareDevice[] AvailableHardwareDevices;
+    private string SelectedHardwareDeviceId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender) {
+            AvailableHardwareDevices = await Camera.GetAvailableDevices();
+            StateHasChanged();
+        }
+    }
+
+    private async Task StartVideoFeed()
+    {
+        if (SelectedHardwareDeviceId != null) {
+            await Camera.StartVideoFeed(SelectedHardwareDeviceId);
+        }
+    }
+
+    private async Task EndVideoFeed()
+    {
+        await Camera.EndVideoFeed();
+    }
+}

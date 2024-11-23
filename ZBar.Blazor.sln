@@ -5,6 +5,10 @@ VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZBar.Blazor", "ZBar.Blazor\ZBar.Blazor.csproj", "{A604A08F-B076-48F2-82A4-1566A185FDF0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZBar.Blazor.Tests", "ZBar.Blazor.Tests\ZBar.Blazor.Tests.csproj", "{414992DA-CAF0-4451-8ED3-B0C94D3ECC5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZBar.Blazor.Sandbox", "ZBar.Blazor.Sandbox\ZBar.Blazor.Sandbox.csproj", "{94924E5D-32C7-458F-850D-7315BE5F9D31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{A604A08F-B076-48F2-82A4-1566A185FDF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A604A08F-B076-48F2-82A4-1566A185FDF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A604A08F-B076-48F2-82A4-1566A185FDF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{414992DA-CAF0-4451-8ED3-B0C94D3ECC5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{414992DA-CAF0-4451-8ED3-B0C94D3ECC5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{414992DA-CAF0-4451-8ED3-B0C94D3ECC5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{414992DA-CAF0-4451-8ED3-B0C94D3ECC5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94924E5D-32C7-458F-850D-7315BE5F9D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94924E5D-32C7-458F-850D-7315BE5F9D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94924E5D-32C7-458F-850D-7315BE5F9D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94924E5D-32C7-458F-850D-7315BE5F9D31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

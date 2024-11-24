@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using ZBar.Blazor.Config;
 using ZBar.Blazor.Dtos;
 
 namespace ZBar.Blazor.Interop
@@ -20,10 +21,10 @@ namespace ZBar.Blazor.Interop
             return await module.InvokeAsync<HardwareDevice[]>("getAvailableCameras");
         }
 
-        public async Task StartVideoFeed(ElementReference video, ElementReference canvas, string deviceId, int scanInterval)
+        public async Task StartVideoFeed(ElementReference video, ElementReference canvas, string deviceId, int scanInterval, ScannerOptions scannerOptions)
         {
             var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("startVideoFeed", video, canvas, deviceId, scanInterval);
+            await module.InvokeVoidAsync("startVideoFeed", video, canvas, deviceId, scanInterval, scannerOptions.Export());
         }
 
         public async Task EndVideoFeed(ElementReference video)

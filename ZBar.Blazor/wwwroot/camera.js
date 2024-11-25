@@ -13,6 +13,7 @@ export function startVideoFeed(video, canvas, deviceId, scanInterval, scannerOpt
 
             if (!activeVideoStreams[video]) {
                 video.srcObject = activeVideoStreams[video] = stream;
+                video.addEventListener('suspend', releaseVideoResources);
                 video.addEventListener('loadedmetadata', video.play);
 
                 let context = canvas.getContext('2d', { willReadFrequently: true });
@@ -43,18 +44,6 @@ export function endVideoFeed(video) {
         tracks.forEach(function (track) {
             track.stop();
         });
-        video.srcObject = null;
-        video.removeEventListener('loadedmetadata', video.play);
-
-        clearInterval(activeVideoRefreshIntervals[video]);
-        delete activeVideoRefreshIntervals[video];
-        
-        if (activeImageScanners[video]) {
-            activeImageScanners[video].destroy();
-            delete activeImageScanners[video];
-        }
-
-        delete activeVideoStreams[video];
     }
 }
 
@@ -74,6 +63,23 @@ export function getAvailableCameras() {
             reject(new Error(error));
         });
     });
+}
+
+function releaseVideoResources(event) {
+    const video = event.target;
+    video.srcObject = null;
+    video.removeEventListener('suspend', releaseVideoResources);
+    video.removeEventListener('loadedmetadata', video.play);
+
+    clearInterval(activeVideoRefreshIntervals[video]);
+    delete activeVideoRefreshIntervals[video];
+
+    if (activeImageScanners[video]) {
+        activeImageScanners[video].destroy();
+        delete activeImageScanners[video];
+    }
+
+    delete activeVideoStreams[video];
 }
 
 function configureScanner(scanner, scannerOptions) {

@@ -14,6 +14,40 @@
         private readonly Dictionary<BarcodeType, int> MaximumValueLengthOverrides = new();
         private readonly Dictionary<BarcodeType, bool> EnableFullCharacterSetOverrides = new();
 
+        /// <summary>
+        /// List of barcode types that support the ZBAR_CFG_MIN_LEN and ZBAR_CFG_MAX_LEN configuration settings.
+        /// </summary>
+        private readonly HashSet<BarcodeType> BarcodeTypesSupportingMinMaxLength = [
+            BarcodeType.I25,
+            BarcodeType.CODABAR,
+            BarcodeType.CODE_39,
+            BarcodeType.CODE_93,
+            BarcodeType.CODE_128
+        ];
+
+        /// <summary>
+        /// List of barcode types that support the ZBAR_CFG_ASCII configuration setting.
+        /// </summary>
+        private readonly HashSet<BarcodeType> BarcodeTypesSupportingFullCharacterSet = [
+            BarcodeType.EAN_2,
+            BarcodeType.EAN_5,
+            BarcodeType.EAN_8,
+            BarcodeType.EAN_13,
+            BarcodeType.UPC_E,
+            BarcodeType.UPC_A,
+            BarcodeType.ISBN_10,
+            BarcodeType.ISBN_13,
+            BarcodeType.I25,
+            BarcodeType.DATABAR,
+            BarcodeType.DATABAR_EXPANDED,
+            BarcodeType.CODABAR,
+            BarcodeType.QR_CODE,
+            BarcodeType.QR_CODE_SECURE,
+            BarcodeType.CODE_39,
+            BarcodeType.CODE_93,
+            BarcodeType.CODE_128
+        ];
+
         public BarcodeType ScanFor { get; set; } = BarcodeType.ALL;
         public int MinimumValueLength { get; set; } = 0;
         public int MaximumValueLength { get; set; } = 0;
@@ -45,9 +79,8 @@
                         SymbolType = barcodeType.GetSymbolType(),
                         ConfigOptions = [
                             new() { ConfigType = CONFIG_ENABLE, Value = 1 },
-                            ConfigureMinimumValueLength(barcodeType),
-                            ConfigureMaximumValueLength(barcodeType),
-                            ConfigureEnableFullCharacterSet(barcodeType)
+                            .. ConfigureMinMaxValueLength(barcodeType),
+                            .. ConfigureEnableFullCharacterSet(barcodeType)
                         ]
                     });
                 } else {
@@ -58,32 +91,29 @@
             return [.. options];
         }
 
-        private ConfigOption ConfigureMinimumValueLength(BarcodeType barcodeType)
+        private ConfigOption[] ConfigureMinMaxValueLength(BarcodeType barcodeType)
         {
-            return new()
-            {
-                ConfigType = CONFIG_MIN_LEN,
-                Value = MinimumValueLengthOverrides.TryGetValue(barcodeType, out int value) ? value : MinimumValueLength
-            };
+            if (!BarcodeTypesSupportingMinMaxLength.Contains(barcodeType)) return [];
+            return [
+                new() {
+                    ConfigType = CONFIG_MIN_LEN,
+                    Value = MinimumValueLengthOverrides.TryGetValue(barcodeType, out int minValue) ? minValue : MinimumValueLength
+                },
+                new() {
+                    ConfigType = CONFIG_MAX_LEN,
+                    Value = MaximumValueLengthOverrides.TryGetValue(barcodeType, out int maxValue) ? maxValue : MaximumValueLength
+                }
+            ];
         }
 
-        private ConfigOption ConfigureMaximumValueLength(BarcodeType barcodeType)
+        private ConfigOption[] ConfigureEnableFullCharacterSet(BarcodeType barcodeType)
         {
-            return new()
-            {
-                ConfigType = CONFIG_MAX_LEN,
-                Value = MaximumValueLengthOverrides.TryGetValue(barcodeType, out int value) ? value : MaximumValueLength
-            };
-        }
-
-        private ConfigOption ConfigureEnableFullCharacterSet(BarcodeType barcodeType)
-        {
+            if (!BarcodeTypesSupportingFullCharacterSet.Contains(barcodeType)) return [];
             var enable = EnableFullCharacterSetOverrides.TryGetValue(barcodeType, out bool value) ? value : EnableFullCharacterSet;
-            return new()
-            {
+            return [new() {
                 ConfigType = CONFIG_FULL_ASCII,
                 Value = enable ? 1 : 0
-            };
+            }];
         }
     }
 }

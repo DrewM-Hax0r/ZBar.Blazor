@@ -5,6 +5,7 @@
     /// </summary>
     internal class ScannerOptions
     {
+        private const string SYMBOL_ALL = "ZBAR_NONE";
         private const string CONFIG_ENABLE = "ZBAR_CFG_ENABLE";
         private const string CONFIG_MIN_LEN = "ZBAR_CFG_MIN_LEN";
         private const string CONFIG_MAX_LEN = "ZBAR_CFG_MAX_LEN";
@@ -70,8 +71,13 @@
         /// </summary>
         public SymbolOption[] Export()
         {
-            var options = new List<SymbolOption>();
-            foreach(var barcodeType in Enum.GetValues<BarcodeType>().Except([BarcodeType.ALL]))
+            // Disable all symbol types by default - we'll manually enable the ones that are requested to scan for
+            var options = new List<SymbolOption>
+            {
+                new() { SymbolType = SYMBOL_ALL, ConfigOptions = [new() { ConfigType = CONFIG_ENABLE, Value = 0 }] }
+            };
+
+            foreach (var barcodeType in Enum.GetValues<BarcodeType>().Except([BarcodeType.ALL]))
             {
                 if (ScanFor.HasFlag(barcodeType))
                 {
@@ -83,8 +89,6 @@
                             .. ConfigureEnableFullCharacterSet(barcodeType)
                         ]
                     });
-                } else {
-                    options.Add(new() { SymbolType = barcodeType.GetSymbolType(), ConfigOptions = [new() { ConfigType = CONFIG_ENABLE, Value = 0 }]});
                 }
             }
 

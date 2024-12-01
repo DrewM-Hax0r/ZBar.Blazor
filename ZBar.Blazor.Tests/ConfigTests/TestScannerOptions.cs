@@ -60,7 +60,6 @@ namespace ZBar.Blazor.Tests.ConfigTests
             BarcodeType.UPC_A,
             BarcodeType.ISBN_10,
             BarcodeType.ISBN_13,
-            BarcodeType.COMPOSITE,
             BarcodeType.I25,
             BarcodeType.DATABAR,
             BarcodeType.DATABAR_EXPANDED,

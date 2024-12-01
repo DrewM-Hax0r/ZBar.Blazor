@@ -11,6 +11,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         private const string CONFIG_MAX_LEN = "ZBAR_CFG_MAX_LEN";
         private const string CONFIG_UNCERTAINTY = "ZBAR_CFG_UNCERTAINTY";
         private const string CONFIG_FULL_ASCII = "ZBAR_CFG_ASCII";
+        private const string CONFIG_HONOR_CHECK = "ZBAR_CFG_ADD_CHECK";
+        private const string CONFIG_INCLUDE_CHECK = "ZBAR_CFG_EMIT_CHECK";
 
         /// <summary>
         /// List of barcode types that support the ZBAR_CFG_MIN_LEN and ZBAR_CFG_MAX_LEN configuration settings.
@@ -35,6 +37,30 @@ namespace ZBar.Blazor.Tests.ConfigTests
             BarcodeType.UPC_A,
             BarcodeType.ISBN_10,
             BarcodeType.ISBN_13,
+            BarcodeType.I25,
+            BarcodeType.DATABAR,
+            BarcodeType.DATABAR_EXPANDED,
+            BarcodeType.CODABAR,
+            BarcodeType.QR_CODE,
+            BarcodeType.QR_CODE_SECURE,
+            BarcodeType.CODE_39,
+            BarcodeType.CODE_93,
+            BarcodeType.CODE_128
+        ];
+
+        /// <summary>
+        /// List of barcode types that support the ZBAR_CFG_ADD_CHECK and ZBAR_CFG_EMIT_CHECK configuration settings.
+        /// </summary>
+        private readonly HashSet<BarcodeType> BarcodeTypesSupportingCheckDigit = [
+            BarcodeType.EAN_2,
+            BarcodeType.EAN_5,
+            BarcodeType.EAN_8,
+            BarcodeType.EAN_13,
+            BarcodeType.UPC_E,
+            BarcodeType.UPC_A,
+            BarcodeType.ISBN_10,
+            BarcodeType.ISBN_13,
+            BarcodeType.COMPOSITE,
             BarcodeType.I25,
             BarcodeType.DATABAR,
             BarcodeType.DATABAR_EXPANDED,
@@ -265,6 +291,101 @@ namespace ZBar.Blazor.Tests.ConfigTests
 
                 var symbol = AssertSymbolConfigured(export, unsupportedType);
                 Assert.IsFalse(ContainsConfigOption(symbol, CONFIG_FULL_ASCII));
+            };
+        }
+
+        [TestMethod]
+        public void Export_HonorCheckDigit()
+        {
+            foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
+            {
+                var options = new ScannerOptions()
+                {
+                    ScanFor = barcodeType,
+                    HonorCheckDigit = true
+                };
+
+                var export = options.Export();
+
+                var symbol = AssertSymbolConfigured(export, barcodeType);
+                AssertConfigValue(symbol, CONFIG_HONOR_CHECK, 1);
+            }
+        }
+
+        [TestMethod]
+        public void Export_OverrideHonorCheckDigit()
+        {
+            var options = new ScannerOptions()
+            {
+                ScanFor = BarcodeType.ALL,
+                HonorCheckDigit = true
+            };
+            options.OverrideHonorCheckDigit(BarcodeType.EAN_13 | BarcodeType.ISBN_13, false);
+
+            var export = options.Export();
+
+            foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
+            {
+                var symbol = AssertSymbolConfigured(export, barcodeType);
+                var overridden = barcodeType == BarcodeType.EAN_13 || barcodeType == BarcodeType.ISBN_13;
+                AssertConfigValue(symbol, CONFIG_HONOR_CHECK, overridden ? 0 : 1);
+            }
+        }
+
+        [TestMethod]
+        public void Export_IncludeCheckDigit()
+        {
+            foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
+            {
+                var options = new ScannerOptions()
+                {
+                    ScanFor = barcodeType,
+                    IncludeCheckDigit = true
+                };
+
+                var export = options.Export();
+
+                var symbol = AssertSymbolConfigured(export, barcodeType);
+                AssertConfigValue(symbol, CONFIG_INCLUDE_CHECK, 1);
+            }
+        }
+
+        [TestMethod]
+        public void Export_OverrideIncludeCheckDigit()
+        {
+            var options = new ScannerOptions()
+            {
+                ScanFor = BarcodeType.ALL,
+                IncludeCheckDigit = true
+            };
+            options.OverrideIncludeCheckDigit(BarcodeType.EAN_13 | BarcodeType.ISBN_13, false);
+
+            var export = options.Export();
+
+            foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
+            {
+                var symbol = AssertSymbolConfigured(export, barcodeType);
+                var overridden = barcodeType == BarcodeType.EAN_13 || barcodeType == BarcodeType.ISBN_13;
+                AssertConfigValue(symbol, CONFIG_INCLUDE_CHECK, overridden ? 0 : 1);
+            }
+        }
+
+        [TestMethod]
+        public void Export_BarcodeTypesExcludingCheckDigit()
+        {
+            var unsupportedTypes = Enum.GetValues<BarcodeType>().Except([
+                BarcodeType.ALL,
+                .. BarcodeTypesSupportingCheckDigit
+            ]).ToArray();
+
+            foreach (var unsupportedType in unsupportedTypes)
+            {
+                var options = new ScannerOptions() { ScanFor = unsupportedType };
+                var export = options.Export();
+
+                var symbol = AssertSymbolConfigured(export, unsupportedType);
+                Assert.IsFalse(ContainsConfigOption(symbol, CONFIG_HONOR_CHECK));
+                Assert.IsFalse(ContainsConfigOption(symbol, CONFIG_INCLUDE_CHECK));
             };
         }
 

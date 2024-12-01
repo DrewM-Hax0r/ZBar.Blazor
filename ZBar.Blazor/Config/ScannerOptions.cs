@@ -11,11 +11,15 @@
         private const string CONFIG_MAX_LEN = "ZBAR_CFG_MAX_LEN";
         private const string CONFIG_UNCERTAINTY = "ZBAR_CFG_UNCERTAINTY";
         private const string CONFIG_FULL_ASCII = "ZBAR_CFG_ASCII";
+        private const string CONFIG_HONOR_CHECK = "ZBAR_CFG_ADD_CHECK";
+        private const string CONFIG_INCLUDE_CHECK = "ZBAR_CFG_EMIT_CHECK";
 
         private readonly Dictionary<BarcodeType, int> MinimumValueLengthOverrides = new();
         private readonly Dictionary<BarcodeType, int> MaximumValueLengthOverrides = new();
         private readonly Dictionary<BarcodeType, int> UncertaintyOverrides = new();
         private readonly Dictionary<BarcodeType, bool> EnableFullCharacterSetOverrides = new();
+        private readonly Dictionary<BarcodeType, bool> HonorCheckDigitOverrides = new();
+        private readonly Dictionary<BarcodeType, bool> IncludeCheckDigitOverrides = new();
 
         /// <summary>
         /// List of barcode types that support the ZBAR_CFG_MIN_LEN and ZBAR_CFG_MAX_LEN configuration settings.
@@ -51,11 +55,37 @@
             BarcodeType.CODE_128
         ];
 
+        /// <summary>
+        /// List of barcode types that support the ZBAR_CFG_ADD_CHECK and ZBAR_CFG_EMIT_CHECK configuration settings.
+        /// </summary>
+        private readonly HashSet<BarcodeType> BarcodeTypesSupportingCheckDigit = [
+            BarcodeType.EAN_2,
+            BarcodeType.EAN_5,
+            BarcodeType.EAN_8,
+            BarcodeType.EAN_13,
+            BarcodeType.UPC_E,
+            BarcodeType.UPC_A,
+            BarcodeType.ISBN_10,
+            BarcodeType.ISBN_13,
+            BarcodeType.COMPOSITE,
+            BarcodeType.I25,
+            BarcodeType.DATABAR,
+            BarcodeType.DATABAR_EXPANDED,
+            BarcodeType.CODABAR,
+            BarcodeType.QR_CODE,
+            BarcodeType.QR_CODE_SECURE,
+            BarcodeType.CODE_39,
+            BarcodeType.CODE_93,
+            BarcodeType.CODE_128
+        ];
+
         public BarcodeType ScanFor { get; set; } = BarcodeType.ALL;
         public int MinimumValueLength { get; set; } = 0;
         public int MaximumValueLength { get; set; } = 0;
         public int Uncertainty { get; set; } = 0;
         public bool EnableFullCharacterSet { get; set; } = true;
+        public bool HonorCheckDigit { get; set; } = true;
+        public bool IncludeCheckDigit { get; set; } = true;
 
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
         {
@@ -75,6 +105,16 @@
         public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
         {
             return ApplyOverride(barcodeType, value, BarcodeTypesSupportingFullCharacterSet, EnableFullCharacterSetOverrides);
+        }
+
+        public bool OverrideHonorCheckDigit(BarcodeType barcodeType, bool value)
+        {
+            return ApplyOverride(barcodeType, value, BarcodeTypesSupportingCheckDigit, HonorCheckDigitOverrides);
+        }
+
+        public bool OverrideIncludeCheckDigit(BarcodeType barcodeType, bool value)
+        {
+            return ApplyOverride(barcodeType, value, BarcodeTypesSupportingCheckDigit, IncludeCheckDigitOverrides);
         }
 
         /// <summary>
@@ -101,7 +141,8 @@
                             new() { ConfigType = CONFIG_ENABLE, Value = 1 },
                             .. ConfigureMinMaxValueLength(barcodeType),
                             .. ConfigureUncertainty(barcodeType),
-                            .. ConfigureEnableFullCharacterSet(barcodeType)
+                            .. ConfigureEnableFullCharacterSet(barcodeType),
+                            .. ConfigureCheckDigit(barcodeType)
                         ]
                     });
                 }
@@ -143,6 +184,23 @@
                 ConfigType = CONFIG_FULL_ASCII,
                 Value = enable ? 1 : 0
             }];
+        }
+
+        private ConfigOption[] ConfigureCheckDigit(BarcodeType barcodeType)
+        {
+            if (!BarcodeTypesSupportingCheckDigit.Contains(barcodeType)) return [];
+            var honorCheckDigit = HonorCheckDigitOverrides.TryGetValue(barcodeType, out bool honorCheck) ? honorCheck : HonorCheckDigit;
+            var includeCheckDigit = IncludeCheckDigitOverrides.TryGetValue(barcodeType, out bool includeCheck) ? includeCheck : IncludeCheckDigit;
+            return [
+                new() {
+                    ConfigType = CONFIG_HONOR_CHECK,
+                    Value = honorCheckDigit ? 1 : 0
+                },
+                new() {
+                    ConfigType = CONFIG_INCLUDE_CHECK,
+                    Value = includeCheckDigit ? 1 : 0
+                }
+            ];
         }
 
         private bool ApplyOverride<TValue>(BarcodeType barcodeType, TValue value, HashSet<BarcodeType> supportedBarcodeTypes, IDictionary<BarcodeType, TValue> overrides)

@@ -15,9 +15,9 @@ namespace ZBar.Blazor.Components
         [Parameter] public BarcodeType ScanFor { get; set; }
 
         /// <summary>
-        /// Only applicable to barcode types that are variable in length.
         /// Barcodes with values smaller in length than the specified number of characters will not be reported.
         /// Setting to 0 will disable the minimum value check.
+        /// Only applicable to barcode types that are variable in length.
         /// </summary>
         /// <remarks>
         /// Defaults to 0.
@@ -25,9 +25,9 @@ namespace ZBar.Blazor.Components
         [Parameter] public int MinimumValueLength { get; set; }
 
         /// <summary>
-        /// Only applicable to barcode types that are variable in length.
         /// Barcodes with values greater in length than the specified number of characters will not be reported.
         /// Setting to 0 will disable the maximum value check.
+        /// Only applicable to barcode types that are variable in length.
         /// </summary>
         /// <remarks>
         /// Defaults to 0.
@@ -44,13 +44,31 @@ namespace ZBar.Blazor.Components
         [Parameter] public int Uncertainty { get; set; }
 
         /// <summary>
-        /// Only applicable to barcode types that can contain non-numeric characters.
         /// Enable to support the full set of ASCII characters.
+        /// Only applicable to barcode types that can contain non-numeric characters.
         /// </summary>
         /// <remarks>
         /// Defaults to true.
         /// </remarks>
         [Parameter] public bool EnableFullCharacterSet { get; set; }
+
+        /// <summary>
+        /// Enable to require the check digit to sucessfully validate the scanned data for it to be reported.
+        /// Only applicable to barcode types that contain check digits.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to true.
+        /// </remarks>
+        [Parameter] public bool HonorCheckDigit { get; set; }
+
+        /// <summary>
+        /// Enable to include the check digit as part of the reported barcode value.
+        /// Only applicable to barcode types that contain check digits.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to true.
+        /// </remarks>
+        [Parameter] public bool IncludeCheckDigit { get; set; }
 
         private protected readonly ScannerOptions ScannerOptions;
 
@@ -62,6 +80,8 @@ namespace ZBar.Blazor.Components
             MaximumValueLength = ScannerOptions.MaximumValueLength;
             Uncertainty = ScannerOptions.Uncertainty;
             EnableFullCharacterSet = ScannerOptions.EnableFullCharacterSet;
+            HonorCheckDigit = ScannerOptions.HonorCheckDigit;
+            IncludeCheckDigit = ScannerOptions.IncludeCheckDigit;
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -91,6 +111,16 @@ namespace ZBar.Blazor.Components
             if (parameters.TryGetValue<bool>(nameof(EnableFullCharacterSet), out var enableFullCharacterSet))
             {
                 ScannerOptions.EnableFullCharacterSet = enableFullCharacterSet;
+            }
+
+            if (parameters.TryGetValue<bool>(nameof(HonorCheckDigit), out var honorCheckDigit))
+            {
+                ScannerOptions.HonorCheckDigit = honorCheckDigit;
+            }
+
+            if (parameters.TryGetValue<bool>(nameof(IncludeCheckDigit), out var includeCheckDigit))
+            {
+                ScannerOptions.IncludeCheckDigit = includeCheckDigit;
             }
         }
 
@@ -152,6 +182,38 @@ namespace ZBar.Blazor.Components
         public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
         {
             return ScannerOptions.OverrideFullCharacterSet(barcodeType, value);
+        }
+
+        /// <summary>
+        /// Sets the HonorCheckDigit option for a specific barcode type.
+        /// Multiple types can be combined as flags.
+        /// </summary>
+        /// <returns>
+        /// Whether or not the operation was successful.
+        /// The operation will only be successful for barcode types that support the HonorCheckDigit option.
+        /// </returns>
+        /// <remarks>
+        /// Use the HonorCheckDigit property to configure the default for all supported barcode types.
+        /// </remarks>
+        public bool OverrideHonorCheckDigit(BarcodeType barcodeType, bool value)
+        {
+            return ScannerOptions.OverrideHonorCheckDigit(barcodeType, value);
+        }
+
+        /// <summary>
+        /// Sets the IncludeCheckDigit option for a specific barcode type.
+        /// Multiple types can be combined as flags.
+        /// </summary>
+        /// <returns>
+        /// Whether or not the operation was successful.
+        /// The operation will only be successful for barcode types that support the IncludeCheckDigit option.
+        /// </returns>
+        /// <remarks>
+        /// Use the IncludeCheckDigit property to configure the default for all supported barcode types.
+        /// </remarks>
+        public bool OverrideIncludeCheckDigit(BarcodeType barcodeType, bool value)
+        {
+            return ScannerOptions.OverrideIncludeCheckDigit(barcodeType, value);
         }
     }
 }

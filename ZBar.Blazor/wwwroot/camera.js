@@ -91,7 +91,7 @@ function configureScanner(scanner, scannerOptions, verbose) {
     });
 }
 
-function setConfig(scanner, type, config, value) {
+function setConfig(scanner, type, config, value, verbose) {
     const result = scanner.setConfig(type, config, value);
     if (verbose) {
         console.log('Set ' + zbar.ZBarSymbolType[type] + ' w/ ' + zbar.ZBarConfigType[config] + ' to ' + value + ' with result ' + result);

@@ -1,6 +1,6 @@
 ﻿@inherits ZBarComponent
 
-<div class="zBarCamera">
+<div class="zBarCamera" style="@GetContainerDisplay()">
     <video @ref="Video" style="@GetVideoDisplay()" />
     <canvas @ref="Canvas" style="@GetCanvasDisplay()" />
 </div>

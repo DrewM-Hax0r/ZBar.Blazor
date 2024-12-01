@@ -87,6 +87,13 @@ namespace ZBar.Blazor.Components
             await CameraInterop.EndVideoFeed(Video);
         }
 
+        private string GetContainerDisplay()
+        {
+            if (CameraViewType == CameraViewType.None)
+                return "display: none;";
+            else return "display: flex;";
+        }
+
         private string GetVideoDisplay()
         {
             if (CameraViewType == CameraViewType.VideoFeed)

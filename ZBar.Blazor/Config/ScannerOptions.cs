@@ -54,21 +54,60 @@
         public int MaximumValueLength { get; set; } = 0;
         public bool EnableFullCharacterSet { get; set; } = true;
 
-        public record class SymbolOption
+        /// <summary>
+        /// Sets the MinimumValueLength option for a specific barcode type.
+        /// Multiple types can be combined as flags.
+        /// </summary>
+        /// <returns>
+        /// Whether or not the operation was successful.
+        /// The operation will only be successful for barcode types that support the MinimumValueLength option.
+        /// </returns>
+        /// <remarks>
+        /// Use the MinimumValueLength property to configure the default for all supported barcode types.
+        /// </remarks>
+        public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
         {
-            public string SymbolType { get; init; }
-            public ConfigOption[] ConfigOptions { get; set; }
-        }
-
-        public record class ConfigOption
-        {
-            public string ConfigType { get; init; }
-            public int Value { get; init; }
+            return ApplyOverride(barcodeType, value, BarcodeTypesSupportingMinMaxLength, MinimumValueLengthOverrides);
         }
 
         /// <summary>
-        /// Exports scanner configuration options in a format more easily consumed by ZBar's ImageScanner.SetConfig() function.
+        /// Sets the MaximumValueLength option for a specific barcode type.
+        /// Multiple types can be combined as flags.
         /// </summary>
+        /// <returns>
+        /// Whether or not the operation was successful.
+        /// The operation will only be successful for barcode types that support the MaximumValueLength option.
+        /// </returns>
+        /// <remarks>
+        /// Use the MaximumValueLength property to configure the default for all supported barcode types.
+        /// </remarks>
+        public bool OverrideMaximumValueLength(BarcodeType barcodeType, int value)
+        {
+            return ApplyOverride(barcodeType, value, BarcodeTypesSupportingMinMaxLength, MaximumValueLengthOverrides);
+        }
+
+        /// <summary>
+        /// Sets the EnableFullCharacterSet option for a specific barcode type.
+        /// Multiple types can be combined as flags.
+        /// </summary>
+        /// <returns>
+        /// Whether or not the operation was successful.
+        /// The operation will only be successful for barcode types that support the EnableFullCharacterSet option.
+        /// </returns>
+        /// <remarks>
+        /// Use the EnableFullCharacterSet property to configure the default for all supported barcode types.
+        /// </remarks>
+        public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
+        {
+            return ApplyOverride(barcodeType, value, BarcodeTypesSupportingFullCharacterSet, EnableFullCharacterSetOverrides);
+        }
+
+        /// <summary>
+        /// Exports scanner configuration options in a format more easily consumed by ZBar WASM's ImageScanner.SetConfig() function.
+        /// </summary>
+        /// <remarks>
+        /// See https://github.com/samsam2310/zbar.wasm/wiki/API-Reference#setconfig
+        /// </remarks>
         public SymbolOption[] Export()
         {
             // Disable all symbol types by default - we'll manually enable the ones that are requested to scan for
@@ -77,7 +116,7 @@
                 new() { SymbolType = SYMBOL_ALL, ConfigOptions = [new() { ConfigType = CONFIG_ENABLE, Value = 0 }] }
             };
 
-            foreach (var barcodeType in Enum.GetValues<BarcodeType>().Except([BarcodeType.ALL]))
+            foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
             {
                 if (ScanFor.HasFlag(barcodeType))
                 {
@@ -118,6 +157,33 @@
                 ConfigType = CONFIG_FULL_ASCII,
                 Value = enable ? 1 : 0
             }];
+        }
+
+        private bool ApplyOverride<TValue>(BarcodeType barcodeType, TValue value, HashSet<BarcodeType> supportedBarcodeTypes, IDictionary<BarcodeType, TValue> overrides)
+        {
+            var successful = true;
+            foreach (var type in BarcodeTypeExtensions.IndividualBarcodeTypes())
+            {
+                if (barcodeType.HasFlag(type))
+                {
+                    if (supportedBarcodeTypes.Contains(type))
+                        overrides[type] = value;
+                    else successful = false;
+                }
+            }
+            return successful;
+        }
+
+        public record class SymbolOption
+        {
+            public string SymbolType { get; init; }
+            public ConfigOption[] ConfigOptions { get; set; }
+        }
+
+        public record class ConfigOption
+        {
+            public string ConfigType { get; init; }
+            public int Value { get; init; }
         }
     }
 }

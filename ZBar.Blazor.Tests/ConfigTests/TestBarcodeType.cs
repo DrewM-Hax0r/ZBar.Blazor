@@ -8,7 +8,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void AllType()
         {
-            var expectedTypes = Enum.GetValues<BarcodeType>().Except([BarcodeType.ALL]);
+            var expectedTypes = BarcodeTypeExtensions.IndividualBarcodeTypes();
             var allType = BarcodeType.ALL;
 
             foreach (var type in expectedTypes)

@@ -32,6 +32,11 @@
 
     internal static class BarcodeTypeExtensions
     {
+        public static BarcodeType[] IndividualBarcodeTypes()
+        {
+            return Enum.GetValues<BarcodeType>().Except([BarcodeType.ALL]).ToArray();
+        }
+
         public static string GetSymbolType(this BarcodeType type)
         {
             return type switch

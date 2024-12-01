@@ -2,14 +2,14 @@ let activeVideoStreams = {};
 let activeVideoRefreshIntervals = {};
 let activeImageScanners = {};
 
-export function startVideoFeed(video, canvas, deviceId, scanInterval, scannerOptions) {
+export function startVideoFeed(video, canvas, deviceId, scanInterval, scannerOptions, verbose) {
     // Use the provided device, or fall back to system default
     const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : true };
 
     navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
         window.zbar.ZBarScanner.create().then(function (scanner) {
             activeImageScanners[video] = scanner;
-            configureScanner(scanner, scannerOptions);
+            configureScanner(scanner, scannerOptions, verbose);
 
             if (!activeVideoStreams[video]) {
                 video.srcObject = activeVideoStreams[video] = stream;
@@ -82,64 +82,18 @@ function releaseVideoResources(event) {
     delete activeVideoStreams[video];
 }
 
-function configureScanner(scanner, scannerOptions) {
+function configureScanner(scanner, scannerOptions, verbose) {
     scannerOptions.forEach(function (symbolOption) {
         let type = zbar.ZBarSymbolType[symbolOption.symbolType];
         symbolOption.configOptions.forEach(function (configOption) {
-            setConfigWithLogging(scanner, type, zbar.ZBarConfigType[configOption.configType], configOption.value);
+            setConfig(scanner, type, zbar.ZBarConfigType[configOption.configType], configOption.value, verbose);
         });
     });
-
-    // Global Defaults
-    //setConfigWithLogging(scanner, zbar.ZBarSymbolType['ZBAR_NONE'], zbar.ZBarConfigType['ZBAR_CFG_X_DENSITY'], 0); // skip 0 pixles
-    //setConfigWithLogging(scanner, zbar.ZBarSymbolType['ZBAR_NONE'], zbar.ZBarConfigType['ZBAR_CFG_Y_DENSITY'], 0); // skip 0 pixles
 }
 
-function setConfigWithLogging(scanner, type, config, value) {
+function setConfig(scanner, type, config, value) {
     const result = scanner.setConfig(type, config, value);
-    console.log('Set ' + zbar.ZBarSymbolType[type] + ' w/ ' + zbar.ZBarConfigType[config] + ' to ' + value + ' with result ' + result);
+    if (verbose) {
+        console.log('Set ' + zbar.ZBarSymbolType[type] + ' w/ ' + zbar.ZBarConfigType[config] + ' to ' + value + ' with result ' + result);
+    }
 }
-
-// For temporary reference
-
-// ZBAR_CFG_ENABLE
-// ZBAR_CFG_MIN_LEN
-// ZBAR_CFG_MAX_LEN
-// ZBAR_CFG_ASCII
-// ZBAR_CFG_UNCERTAINTY
-// ZBAR_CFG_ADD_CHECK
-// ZBAR_CFG_EMIT_CHECK
-
-// ZBAR_CFG_BINARY
-// ZBAR_CFG_NUM
-// ZBAR_CFG_POSITION
-// ZBAR_CFG_X_DENSITY
-// ZBAR_CFG_Y_DENSITY
-
-// "ZBAR_NONE"
-// "ZBAR_PARTIAL"
-
-// "ZBAR_EAN2"
-// "ZBAR_EAN5"
-// "ZBAR_EAN8"
-// "ZBAR_EAN13"
-// "ZBAR_UPCE"
-// "ZBAR_UPCA"
-// "ZBAR_ISBN10"
-// "ZBAR_ISBN13"
-// "ZBAR_COMPOSITE"
-// "ZBAR_I25"
-// "ZBAR_DATABAR"
-// "ZBAR_DATABAR_EXP"
-// "ZBAR_CODABAR"
-// "ZBAR_CODE39"
-// "ZBAR_PDF417"
-// "ZBAR_QRCODE"
-// "ZBAR_SQCODE"
-// "ZBAR_CODE93"
-// "ZBAR_CODE128"
-
-// "ZBAR_SYMBOL"
-// "ZBAR_ADDON2"
-// "ZBAR_ADDON5"
-// "ZBAR_ADDON"

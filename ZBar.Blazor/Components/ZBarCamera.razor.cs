@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using ZBar.Blazor.Config;
 using ZBar.Blazor.Dtos;
 using ZBar.Blazor.Interop;
 
@@ -49,12 +48,15 @@ namespace ZBar.Blazor.Components
         /// <param name="hardwareDeviceId">
         /// Specifies the hardware device to use for video input. If not provided, the system default will be used.
         /// </param>
+        /// <param name="verbose">
+        /// Enables verbose browser console output for scanner options configuration. Useful for debugging purposes.
+        /// </param>
         /// <remarks>
         /// Calling this function will request camera permissions from the user if not already approved.
         /// </remarks>
-        public async Task StartVideoFeed(string hardwareDeviceId = null)
+        public async Task StartVideoFeed(string hardwareDeviceId = null, bool verbose = false)
         {
-            await CameraInterop.StartVideoFeed(Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions);
+            await CameraInterop.StartVideoFeed(Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, verbose);
         }
 
         /// <summary>

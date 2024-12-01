@@ -18,16 +18,19 @@ export function startVideoFeed(video, canvas, deviceId, scanInterval, scannerOpt
 
                 let context = canvas.getContext('2d', { willReadFrequently: true });
                 activeVideoRefreshIntervals[video] = setInterval(function () {
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    if (video.videoWidth) {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    window.zbar.scanImageData(imageData, scanner).then(function (symbols) {
-                        symbols.forEach(function (symbol) {
-                            symbol.rawValue = symbol.decode();
-                            console.log(symbol);
+                        const imageData = context.getImageData(0, 0, video.videoWidth, video.videoHeight);
+                        window.zbar.scanImageData(imageData, scanner).then(function (symbols) {
+                            symbols.forEach(function (symbol) {
+                                symbol.rawValue = symbol.decode();
+                                console.log(symbol);
+                            });
                         });
-                    });
-
+                    }
                 }, scanInterval);
             }
         });

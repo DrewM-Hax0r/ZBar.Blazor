@@ -21,18 +21,20 @@
         </div>
         <div class="section">
             <label class="form-check-label description">Camera View Type:</label>
-            <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeVideoFeed" checked="@(CameraView == CameraViewType.VideoFeed)" @onchange="@(() => CameraView = CameraViewType.VideoFeed)">
-            <label class="form-check-label" for="CameraViewTypeVideoFeed">
-                Video Feed
-            </label>
-            <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeScannerFeed" checked="@(CameraView == CameraViewType.ScannerFeed)" @onchange="@(() => CameraView = CameraViewType.ScannerFeed)">
-            <label class="form-check-label" for="CameraViewTypeScannerFeed">
-                Scanner Feed
-            </label>
-            <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeNone" checked="@(CameraView == CameraViewType.None)" @onchange="@(() => CameraView = CameraViewType.None)">
-            <label class="form-check-label" for="CameraViewTypeNone">
-                None
-            </label>
+            <div class="cameraViewSelection">
+                <div>
+                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeVideoFeed" checked="@(CameraView == CameraViewType.VideoFeed)" @onchange="@(() => CameraView = CameraViewType.VideoFeed)">
+                    <label class="form-check-label" for="CameraViewTypeVideoFeed">Video Feed</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeScannerFeed" checked="@(CameraView == CameraViewType.ScannerFeed)" @onchange="@(() => CameraView = CameraViewType.ScannerFeed)">
+                    <label class="form-check-label" for="CameraViewTypeScannerFeed">Scanner Feed</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeNone" checked="@(CameraView == CameraViewType.None)" @onchange="@(() => CameraView = CameraViewType.None)">
+                    <label class="form-check-label" for="CameraViewTypeNone">None</label>
+                </div>
+            </div>
         </div>
     </div>
 </div>

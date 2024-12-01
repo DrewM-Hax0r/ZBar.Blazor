@@ -1,4 +1,6 @@
-﻿<div class="zBarCamera">
+﻿@inherits ZBarComponent
+
+<div class="zBarCamera">
     <video @ref="Video" class="cameraView" />
     <canvas @ref="Canvas" style="display: none;" width="@Width" height="@Height" />
 </div>

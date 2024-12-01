@@ -19,91 +19,17 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         [Parameter] public int ScanInterval { get; set; } = 1000;
 
-        /// <summary>
-        /// Specify one or more barcode types to scan for. Multiple types can be combined as flags.
-        /// Setting only the barcode types applicable to your workflow can improve performance.
-        /// </summary>
-        /// <remarks>
-        /// Defaults to all supported barcode types.
-        /// </remarks>
-        [Parameter] public BarcodeType ScanFor { get; set; }
-
-        /// <summary>
-        /// Only applicable to barcode types that are variable in length.
-        /// Barcodes with values smaller in length than the specified number of characters will not be reported.
-        /// Setting to 0 will disable the minimum value check.
-        /// </summary>
-        /// <remarks>
-        /// Defaults to 0.
-        /// </remarks>
-        [Parameter] public int MinimumValueLength { get; set; }
-
-        /// <summary>
-        /// Only applicable to barcode types that are variable in length.
-        /// Barcodes with values greater in length than the specified number of characters will not be reported.
-        /// Setting to 0 will disable the maximum value check.
-        /// </summary>
-        /// <remarks>
-        /// Defaults to 0.
-        /// </remarks>
-        [Parameter] public int MaximumValueLength { get; set; }
-
-        /// <summary>
-        /// Only applicable to barcode types that can contain non-numeric characters.
-        /// Enable to support the full set of ASCII characters.
-        /// </summary>
-        /// <remarks>
-        /// Defaults to true.
-        /// </remarks>
-        [Parameter] public bool EnableFullCharacterSet { get; set; }
-
         [Parameter] public int Width { get; set; } = 1280;
         [Parameter] public int Height { get; set; } = 720;
-
-        private readonly ScannerOptions ScannerOptions;
 
         private DotNetObjectReference<ZBarCamera> Camera;
         private ElementReference Video;
         private ElementReference Canvas;
 
-        public ZBarCamera()
-        {
-            ScannerOptions = new();
-            ScanFor = ScannerOptions.ScanFor;
-            MinimumValueLength = ScannerOptions.MinimumValueLength;
-            MaximumValueLength = ScannerOptions.MaximumValueLength;
-            EnableFullCharacterSet = ScannerOptions.EnableFullCharacterSet;
-        }
-
         protected override void OnInitialized()
         {
             base.OnInitialized();
             Camera = DotNetObjectReference.Create(this);
-        }
-
-        public override async Task SetParametersAsync(ParameterView parameters)
-        {
-            await base.SetParametersAsync(parameters);
-
-            if (parameters.TryGetValue<BarcodeType>(nameof(ScanFor), out var scanFor))
-            {
-                ScannerOptions.ScanFor = scanFor;
-            }
-
-            if (parameters.TryGetValue<int>(nameof(MinimumValueLength), out var minimumValueLength))
-            {
-                ScannerOptions.MinimumValueLength = minimumValueLength;
-            }
-
-            if (parameters.TryGetValue<int>(nameof(MaximumValueLength), out var maximumValueLength))
-            {
-                ScannerOptions.MaximumValueLength = maximumValueLength;
-            }
-
-            if (parameters.TryGetValue<bool>(nameof(EnableFullCharacterSet), out var enableFullCharacterSet))
-            {
-                ScannerOptions.EnableFullCharacterSet = enableFullCharacterSet;
-            }
         }
 
         /// <summary>

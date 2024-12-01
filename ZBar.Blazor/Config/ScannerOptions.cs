@@ -54,49 +54,16 @@
         public int MaximumValueLength { get; set; } = 0;
         public bool EnableFullCharacterSet { get; set; } = true;
 
-        /// <summary>
-        /// Sets the MinimumValueLength option for a specific barcode type.
-        /// Multiple types can be combined as flags.
-        /// </summary>
-        /// <returns>
-        /// Whether or not the operation was successful.
-        /// The operation will only be successful for barcode types that support the MinimumValueLength option.
-        /// </returns>
-        /// <remarks>
-        /// Use the MinimumValueLength property to configure the default for all supported barcode types.
-        /// </remarks>
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
         {
             return ApplyOverride(barcodeType, value, BarcodeTypesSupportingMinMaxLength, MinimumValueLengthOverrides);
         }
 
-        /// <summary>
-        /// Sets the MaximumValueLength option for a specific barcode type.
-        /// Multiple types can be combined as flags.
-        /// </summary>
-        /// <returns>
-        /// Whether or not the operation was successful.
-        /// The operation will only be successful for barcode types that support the MaximumValueLength option.
-        /// </returns>
-        /// <remarks>
-        /// Use the MaximumValueLength property to configure the default for all supported barcode types.
-        /// </remarks>
         public bool OverrideMaximumValueLength(BarcodeType barcodeType, int value)
         {
             return ApplyOverride(barcodeType, value, BarcodeTypesSupportingMinMaxLength, MaximumValueLengthOverrides);
         }
 
-        /// <summary>
-        /// Sets the EnableFullCharacterSet option for a specific barcode type.
-        /// Multiple types can be combined as flags.
-        /// </summary>
-        /// <returns>
-        /// Whether or not the operation was successful.
-        /// The operation will only be successful for barcode types that support the EnableFullCharacterSet option.
-        /// </returns>
-        /// <remarks>
-        /// Use the EnableFullCharacterSet property to configure the default for all supported barcode types.
-        /// </remarks>
         public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
         {
             return ApplyOverride(barcodeType, value, BarcodeTypesSupportingFullCharacterSet, EnableFullCharacterSetOverrides);

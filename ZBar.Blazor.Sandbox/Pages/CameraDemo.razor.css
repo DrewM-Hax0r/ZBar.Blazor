@@ -1,14 +1,19 @@
-﻿::deep .zBarCamera {
-    height: 80%;
-    width: 100%;
-}
-
-::deep .cameraView {
-    height: 100%;
-    width: 100%;
-    background-color: black;
-}
-
-.tools {
+﻿.tools {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     margin: 8px 0;
+}
+
+.description {
+    font-weight: bold;
+}
+
+.section {
+    display: flex;
+    gap: 8px;
+}
+
+.form-select {
+    width: 300px;
 }

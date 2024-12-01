@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using ZBar.Blazor.Config;
 using ZBar.Blazor.Dtos;
 using ZBar.Blazor.Interop;
 
@@ -17,6 +18,14 @@ namespace ZBar.Blazor.Components
         /// Defaults to 1000.
         /// </remarks>
         [Parameter] public int ScanInterval { get; set; } = 1000;
+
+        /// <summary>
+        /// Specifies the type of video output displayed from this camera.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to CameraViewType.VideoFeed.
+        /// </remarks>
+        [Parameter] public CameraViewType CameraViewType { get; set; } = CameraViewType.VideoFeed;
 
         [Parameter] public int Width { get; set; } = 1280;
         [Parameter] public int Height { get; set; } = 720;
@@ -76,6 +85,20 @@ namespace ZBar.Blazor.Components
         public async ValueTask DisposeAsync()
         {
             await CameraInterop.EndVideoFeed(Video);
+        }
+
+        private string GetVideoDisplay()
+        {
+            if (CameraViewType == CameraViewType.VideoFeed)
+                return "display: block;";
+            else return "display: none;";
+        }
+
+        private string GetCanvasDisplay()
+        {
+            if (CameraViewType == CameraViewType.ScannerFeed)
+                return "display: block;";
+            else return "display: none;";
         }
     }
 }

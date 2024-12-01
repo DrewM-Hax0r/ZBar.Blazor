@@ -9,10 +9,12 @@
         private const string CONFIG_ENABLE = "ZBAR_CFG_ENABLE";
         private const string CONFIG_MIN_LEN = "ZBAR_CFG_MIN_LEN";
         private const string CONFIG_MAX_LEN = "ZBAR_CFG_MAX_LEN";
+        private const string CONFIG_UNCERTAINTY = "ZBAR_CFG_UNCERTAINTY";
         private const string CONFIG_FULL_ASCII = "ZBAR_CFG_ASCII";
 
         private readonly Dictionary<BarcodeType, int> MinimumValueLengthOverrides = new();
         private readonly Dictionary<BarcodeType, int> MaximumValueLengthOverrides = new();
+        private readonly Dictionary<BarcodeType, int> UncertaintyOverrides = new();
         private readonly Dictionary<BarcodeType, bool> EnableFullCharacterSetOverrides = new();
 
         /// <summary>
@@ -52,6 +54,7 @@
         public BarcodeType ScanFor { get; set; } = BarcodeType.ALL;
         public int MinimumValueLength { get; set; } = 0;
         public int MaximumValueLength { get; set; } = 0;
+        public int Uncertainty { get; set; } = 0;
         public bool EnableFullCharacterSet { get; set; } = true;
 
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
@@ -62,6 +65,11 @@
         public bool OverrideMaximumValueLength(BarcodeType barcodeType, int value)
         {
             return ApplyOverride(barcodeType, value, BarcodeTypesSupportingMinMaxLength, MaximumValueLengthOverrides);
+        }
+
+        public bool OverrideUncertainty(BarcodeType barcodeType, int value)
+        {
+            return ApplyOverride(barcodeType, value, new HashSet<BarcodeType>(BarcodeTypeExtensions.IndividualBarcodeTypes()), UncertaintyOverrides);
         }
 
         public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
@@ -92,6 +100,7 @@
                         ConfigOptions = [
                             new() { ConfigType = CONFIG_ENABLE, Value = 1 },
                             .. ConfigureMinMaxValueLength(barcodeType),
+                            .. ConfigureUncertainty(barcodeType),
                             .. ConfigureEnableFullCharacterSet(barcodeType)
                         ]
                     });
@@ -112,6 +121,16 @@
                 new() {
                     ConfigType = CONFIG_MAX_LEN,
                     Value = MaximumValueLengthOverrides.TryGetValue(barcodeType, out int maxValue) ? maxValue : MaximumValueLength
+                }
+            ];
+        }
+
+        private ConfigOption[] ConfigureUncertainty(BarcodeType barcodeType)
+        {
+            return [
+                new() {
+                    ConfigType = CONFIG_UNCERTAINTY,
+                    Value = UncertaintyOverrides.TryGetValue(barcodeType, out int uncertainty) ? uncertainty : Uncertainty
                 }
             ];
         }

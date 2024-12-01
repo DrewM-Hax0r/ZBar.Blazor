@@ -92,7 +92,6 @@ function configureScanner(scanner, scannerOptions) {
         // Defaults
         //setConfigWithLogging(scanner, type, zbar.ZBarConfigType['ZBAR_CFG_ADD_CHECK'], 1);
         //setConfigWithLogging(scanner, type, zbar.ZBarConfigType['ZBAR_CFG_EMIT_CHECK'], 1);
-        //setConfigWithLogging(scanner, type, zbar.ZBarConfigType['ZBAR_CFG_UNCERTAINTY'], 0);
     });
 
     // Global Defaults
@@ -111,13 +110,13 @@ function setConfigWithLogging(scanner, type, config, value) {
 // ZBAR_CFG_MIN_LEN
 // ZBAR_CFG_MAX_LEN
 // ZBAR_CFG_ASCII
+// ZBAR_CFG_UNCERTAINTY
 
 // ZBAR_CFG_ADD_CHECK
 // ZBAR_CFG_EMIT_CHECK
 // ZBAR_CFG_BINARY
 // ZBAR_CFG_NUM
 // ZBAR_CFG_POSITION
-// ZBAR_CFG_UNCERTAINTY
 // ZBAR_CFG_X_DENSITY
 // ZBAR_CFG_Y_DENSITY
 

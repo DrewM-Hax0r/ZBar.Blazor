@@ -35,6 +35,15 @@ namespace ZBar.Blazor.Components
         [Parameter] public int MaximumValueLength { get; set; }
 
         /// <summary>
+        /// Specifies the number of sequential scans that must identify a barcode of a particular type before it is reported.
+        /// Setting to 0 will disable the uncertainty.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to 0.
+        /// </remarks>
+        [Parameter] public int Uncertainty { get; set; }
+
+        /// <summary>
         /// Only applicable to barcode types that can contain non-numeric characters.
         /// Enable to support the full set of ASCII characters.
         /// </summary>
@@ -51,6 +60,7 @@ namespace ZBar.Blazor.Components
             ScanFor = ScannerOptions.ScanFor;
             MinimumValueLength = ScannerOptions.MinimumValueLength;
             MaximumValueLength = ScannerOptions.MaximumValueLength;
+            Uncertainty = ScannerOptions.Uncertainty;
             EnableFullCharacterSet = ScannerOptions.EnableFullCharacterSet;
         }
 
@@ -71,6 +81,11 @@ namespace ZBar.Blazor.Components
             if (parameters.TryGetValue<int>(nameof(MaximumValueLength), out var maximumValueLength))
             {
                 ScannerOptions.MaximumValueLength = maximumValueLength;
+            }
+
+            if (parameters.TryGetValue<int>(nameof(Uncertainty), out var uncertainty))
+            {
+                ScannerOptions.Uncertainty = uncertainty;
             }
 
             if (parameters.TryGetValue<bool>(nameof(EnableFullCharacterSet), out var enableFullCharacterSet))
@@ -109,6 +124,18 @@ namespace ZBar.Blazor.Components
         public bool OverrideMaximumValueLength(BarcodeType barcodeType, int value)
         {
             return ScannerOptions.OverrideMaximumValueLength(barcodeType, value);
+        }
+
+        /// <summary>
+        /// Sets the Uncertainty option for a specific barcode type.
+        /// Multiple types can be combined as flags.
+        /// </summary>
+        /// <remarks>
+        /// Use the Uncertainty property to configure the default for all barcode types.
+        /// </remarks>
+        public void OverrideUncertainty(BarcodeType barcodeType, int value)
+        {
+            ScannerOptions.OverrideUncertainty(barcodeType, value);
         }
 
         /// <summary>

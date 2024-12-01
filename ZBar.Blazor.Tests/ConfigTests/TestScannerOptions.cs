@@ -9,6 +9,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         private const string CONFIG_ENABLE = "ZBAR_CFG_ENABLE";
         private const string CONFIG_MIN_LEN = "ZBAR_CFG_MIN_LEN";
         private const string CONFIG_MAX_LEN = "ZBAR_CFG_MAX_LEN";
+        private const string CONFIG_UNCERTAINTY = "ZBAR_CFG_UNCERTAINTY";
         private const string CONFIG_FULL_ASCII = "ZBAR_CFG_ASCII";
 
         /// <summary>
@@ -169,6 +170,44 @@ namespace ZBar.Blazor.Tests.ConfigTests
                 Assert.IsFalse(ContainsConfigOption(symbol, CONFIG_MAX_LEN));
                 Assert.IsFalse(ContainsConfigOption(symbol, CONFIG_MIN_LEN));
             };
+        }
+
+        [TestMethod]
+        public void Export_Uncertainty()
+        {
+            foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
+            {
+                var options = new ScannerOptions()
+                {
+                    ScanFor = barcodeType,
+                    Uncertainty = 2
+                };
+
+                var export = options.Export();
+
+                var symbol = AssertSymbolConfigured(export, barcodeType);
+                AssertConfigValue(symbol, CONFIG_UNCERTAINTY, 2);
+            }
+        }
+
+        [TestMethod]
+        public void Export_OverrideUncertainty()
+        {
+            var options = new ScannerOptions()
+            {
+                ScanFor = BarcodeType.ALL,
+                Uncertainty = 0
+            };
+            options.OverrideUncertainty(BarcodeType.UPC_A | BarcodeType.ISBN_13, 3);
+
+            var export = options.Export();
+
+            foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
+            {
+                var symbol = AssertSymbolConfigured(export, barcodeType);
+                var overridden = barcodeType == BarcodeType.UPC_A || barcodeType == BarcodeType.ISBN_13;
+                AssertConfigValue(symbol, CONFIG_UNCERTAINTY, overridden ? 3 : 0);
+            }
         }
 
         [DataTestMethod]

@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
 using ZBar.Blazor.Config;
+using ZBar.Blazor.Dtos;
+using ZBar.Blazor.Interop;
 
 namespace ZBar.Blazor.Components
 {
-    public abstract class ZBarComponent : ComponentBase
+    public abstract class ZBarComponent : ComponentBase, IDisposable
     {
+        internal readonly ScannerInterop Scanner;
+
         /// <summary>
         /// Specify one or more barcode types to scan for. Multiple types can be combined as flags.
         /// Setting only the barcode types applicable to your workflow can improve performance.
@@ -70,10 +74,21 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         [Parameter] public bool IncludeCheckDigit { get; set; }
 
+        /// <summary>
+        /// Binds a callback function that will be executed when one or more barcodes were successfully identified from the provided image source.
+        /// </summary>
+        [Parameter] public Action<Barcode[]> OnBarcodesFound { get; set; }
+
+        /// <summary>
+        /// Binds a callback function that will be executed when a scan completes that did not identify any barcodes in the provided image source.
+        /// </summary>
+        [Parameter] public Action OnBarcodesNotFound { get; set; }
+
         private protected readonly ScannerOptions ScannerOptions;
 
         private protected ZBarComponent()
         {
+            Scanner = new ScannerInterop(this);
             ScannerOptions = new();
             ScanFor = ScannerOptions.ScanFor;
             MinimumValueLength = ScannerOptions.MinimumValueLength;
@@ -214,6 +229,11 @@ namespace ZBar.Blazor.Components
         public bool OverrideIncludeCheckDigit(BarcodeType barcodeType, bool value)
         {
             return ScannerOptions.OverrideIncludeCheckDigit(barcodeType, value);
+        }
+
+        public void Dispose()
+        {
+            Scanner?.Dispose();
         }
     }
 }

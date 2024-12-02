@@ -2,7 +2,7 @@ let activeVideoStreams = {};
 let activeVideoRefreshIntervals = {};
 let activeImageScanners = {};
 
-export function startVideoFeed(video, canvas, deviceId, scanInterval, scannerOptions, verbose) {
+export function startVideoFeed(dotNet, video, canvas, deviceId, scanInterval, scannerOptions, verbose) {
     // Use the provided device, or fall back to system default
     const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : true };
 
@@ -25,10 +25,15 @@ export function startVideoFeed(video, canvas, deviceId, scanInterval, scannerOpt
 
                         const imageData = context.getImageData(0, 0, video.videoWidth, video.videoHeight);
                         window.zbar.scanImageData(imageData, scanner).then(function (symbols) {
+                            let results = [];
                             symbols.forEach(function (symbol) {
                                 symbol.rawValue = symbol.decode();
-                                console.log(symbol);
+                                results.push(symbol);
+                                if (verbose) {
+                                    console.log(symbol);
+                                }
                             });
+                            dotNet.invokeMethodAsync('OnAfterScan', results);
                         });
                     }
                 }, scanInterval);

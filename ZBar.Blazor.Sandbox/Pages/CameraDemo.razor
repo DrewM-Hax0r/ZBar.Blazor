@@ -3,7 +3,7 @@
 
 <PageTitle>ZBarCamera</PageTitle>
 <div class="page">
-    <ZBarCamera @ref="Camera" CameraViewType="@CameraView" />
+    <ZBarCamera @ref="Camera" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
     <div class="tools">
         <div class="section">
             <button class="btn btn-primary" @onclick="StartVideoFeed">Start</button>
@@ -18,6 +18,25 @@
                     }
                 }
             </select>
+        </div>
+        <div class="section foundBarcodes">
+            <h5>Found Barcodes</h5>
+            <div class="barcodes">
+                @if (FoundBarcodes != null)
+                {
+                    foreach (var barcode in FoundBarcodes)
+                    {
+                        <div class="barcode">
+                            <div class="type">@barcode.Type</div>
+                            <div class="value">@barcode.Value</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="none">None Found</div>
+                }
+            </div>
         </div>
         <div class="section">
             <label class="form-check-label description">Camera View Type:</label>
@@ -47,6 +66,8 @@
     private HardwareDevice[] AvailableHardwareDevices;
     private string SelectedHardwareDeviceId;
 
+    private Barcode[] FoundBarcodes;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -59,12 +80,18 @@
     private async Task StartVideoFeed()
     {
         if (SelectedHardwareDeviceId != null) {
-            await Camera.StartVideoFeed(SelectedHardwareDeviceId);
+            await Camera.StartVideoFeed(SelectedHardwareDeviceId, verbose: true);
         }
     }
 
     private async Task EndVideoFeed()
     {
         await Camera.EndVideoFeed();
+    }
+
+    private void OnBarcodesFound(Barcode[] barcodes)
+    {
+        FoundBarcodes = barcodes;
+        StateHasChanged();
     }
 }

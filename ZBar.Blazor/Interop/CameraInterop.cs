@@ -21,10 +21,10 @@ namespace ZBar.Blazor.Interop
             return await module.InvokeAsync<HardwareDevice[]>("getAvailableCameras");
         }
 
-        public async Task StartVideoFeed(ElementReference video, ElementReference canvas, string deviceId, int scanInterval, ScannerOptions scannerOptions, bool verbose)
+        public async Task StartVideoFeed(DotNetObjectReference<ScannerInterop> interop, ElementReference video, ElementReference canvas, string deviceId, int scanInterval, ScannerOptions scannerOptions, bool verbose)
         {
             var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("startVideoFeed", video, canvas, deviceId, scanInterval, scannerOptions.Export(), verbose);
+            await module.InvokeVoidAsync("startVideoFeed", interop, video, canvas, deviceId, scanInterval, scannerOptions.Export(), verbose);
         }
 
         public async Task EndVideoFeed(ElementReference video)

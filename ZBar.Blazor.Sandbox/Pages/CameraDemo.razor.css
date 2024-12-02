@@ -1,12 +1,31 @@
-﻿.tools {
+﻿::deep .zBarCamera {
+    width: 100%;
+    height: calc(100% - 230px);
+}
+
+h5 {
+    margin: 0;
+}
+
+.tools {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin: 8px 0;
 }
 
+.form-select {
+    max-width: 400px;
+}
+
 .description {
     font-weight: bold;
+}
+
+.sideBySide {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .section {
@@ -14,17 +33,40 @@
     gap: 8px;
 }
 
+.section.foundBarcodes {
+    display: flex;
+    flex-direction: column;
+    max-width: 535px;
+}
+
+.barcodes {
+    border: 1px solid black;
+    min-width: 300px;
+    height: 100px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+.barcode {
+    padding: 4px;
+}
+
+.barcode:not(:last-child) {
+    border-bottom: 1px solid gray;
+}
+
+.barcode .type {
+    font-weight: bold;
+}
+
+.barcodes .none {
+    text-align: center;
+    font-style: italic;
+    color: gray;
+}
+
 .cameraViewSelection {
     display: flex;
-    gap: 12px;
+    gap: 24px;
     flex-wrap: wrap;
-}
-
-.form-select {
-    max-width: 400px;
-}
-
-::deep .zBarCamera {
-    width: 100%;
-    height: calc(100% - 100px);
 }

@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using ZBar.Blazor.Config;
 using ZBar.Blazor.Dtos;
 using ZBar.Blazor.Interop;
 
 namespace ZBar.Blazor.Components
 {
-    partial class ZBarCamera : IDisposable, IAsyncDisposable
+    partial class ZBarCamera : IAsyncDisposable
     {
         [Inject] CameraInterop CameraInterop { get; set; }
 
@@ -30,14 +29,12 @@ namespace ZBar.Blazor.Components
         [Parameter] public int Width { get; set; } = 1280;
         [Parameter] public int Height { get; set; } = 720;
 
-        private DotNetObjectReference<ZBarCamera> Camera;
         private ElementReference Video;
         private ElementReference Canvas;
 
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            Camera = DotNetObjectReference.Create(this);
         }
 
         /// <summary>
@@ -65,7 +62,7 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         public async Task StartVideoFeed(string hardwareDeviceId = null, bool verbose = false)
         {
-            await CameraInterop.StartVideoFeed(Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, verbose);
+            await CameraInterop.StartVideoFeed(Scanner.Interop, Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, verbose);
         }
 
         /// <summary>
@@ -74,12 +71,6 @@ namespace ZBar.Blazor.Components
         public async Task EndVideoFeed()
         {
             await CameraInterop.EndVideoFeed(Video);
-        }
-
-        public void Dispose()
-        {
-            Camera?.Dispose();
-            Camera = null;
         }
 
         public async ValueTask DisposeAsync()

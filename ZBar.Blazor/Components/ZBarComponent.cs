@@ -77,12 +77,12 @@ namespace ZBar.Blazor.Components
         /// <summary>
         /// Binds a callback function that will be executed when one or more barcodes were successfully identified from the provided image source.
         /// </summary>
-        [Parameter] public Action<Barcode[]> OnBarcodesFound { get; set; }
+        [Parameter] public EventCallback<ScanResult> OnBarcodesFound { get; set; }
 
         /// <summary>
         /// Binds a callback function that will be executed when a scan completes that did not identify any barcodes in the provided image source.
         /// </summary>
-        [Parameter] public Action OnBarcodesNotFound { get; set; }
+        [Parameter] public EventCallback OnBarcodesNotFound { get; set; }
 
         private protected readonly ScannerOptions ScannerOptions;
 

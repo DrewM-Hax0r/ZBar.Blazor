@@ -23,16 +23,20 @@ namespace ZBar.Blazor.Interop
         {
             if (symbols.Length > 0)
             {
-                Component.OnBarcodesFound?.Invoke(symbols.Select(s => new Barcode()
-                {
-                    Type = s.TypeName.ToBarcodeType(),
-                    Value = s.RawValue
-                }).ToArray());
+                var scanResult = BuildScanResult(symbols);
+                Component.OnBarcodesFound.InvokeAsync(scanResult);
             }
-            else
-            {
-                Component.OnBarcodesNotFound?.Invoke();
-            }
+            else Component.OnBarcodesNotFound.InvokeAsync();
+        }
+
+        private ScanResult BuildScanResult(Symbol[] symbols)
+        {
+            var barcodes = symbols.Select(s => new Barcode() {
+                Type = s.TypeName.ToBarcodeType(),
+                Value = s.RawValue
+            }).ToArray();
+
+            return new ScanResult(barcodes);
         }
 
         public void Dispose()

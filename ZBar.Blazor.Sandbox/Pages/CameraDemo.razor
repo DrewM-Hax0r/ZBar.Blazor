@@ -89,9 +89,9 @@
         await Camera.EndVideoFeed();
     }
 
-    private void OnBarcodesFound(Barcode[] barcodes)
+    private void OnBarcodesFound(ScanResult scanResult)
     {
-        FoundBarcodes = barcodes;
+        FoundBarcodes = scanResult.Barcodes;
         StateHasChanged();
     }
 }

@@ -13,7 +13,7 @@ export function startVideoFeed(dotNet, video, canvas, deviceId, scanInterval, sc
 
             if (!activeVideoStreams[video]) {
                 video.srcObject = activeVideoStreams[video] = stream;
-                video.addEventListener('suspend', releaseVideoResources);
+                video.addEventListener('ended', releaseVideoResources);
                 video.addEventListener('loadedmetadata', video.play);
 
                 let context = canvas.getContext('2d', { willReadFrequently: true });
@@ -76,7 +76,7 @@ export function getAvailableCameras() {
 function releaseVideoResources(event) {
     const video = event.target;
     video.srcObject = null;
-    video.removeEventListener('suspend', releaseVideoResources);
+    video.removeEventListener('ended', releaseVideoResources);
     video.removeEventListener('loadedmetadata', video.play);
 
     clearInterval(activeVideoRefreshIntervals[video]);

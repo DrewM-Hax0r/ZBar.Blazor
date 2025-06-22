@@ -13,7 +13,7 @@
         VideoFeed,
 
         /// <summary>
-        /// Specifies the displayed video output to be the individual frames from scan intervals.
+        /// Specifies the displayed video output to be the individual video frames captured at each scan interval.
         /// </summary>
         ScannerFeed
     }

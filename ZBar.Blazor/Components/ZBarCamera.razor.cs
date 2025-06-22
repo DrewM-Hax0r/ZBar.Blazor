@@ -5,6 +5,10 @@ using ZBar.Blazor.Interop;
 
 namespace ZBar.Blazor.Components
 {
+    /// <summary>
+    /// A component which reads a video stream from any of the device's available video input
+    /// sources and continually scans the incoming video frames for barcode information.
+    /// </summary>
     partial class ZBarCamera : IAsyncDisposable
     {
         [Inject] CameraInterop CameraInterop { get; set; }
@@ -22,9 +26,9 @@ namespace ZBar.Blazor.Components
         /// Specifies the type of video output displayed from this camera.
         /// </summary>
         /// <remarks>
-        /// Defaults to CameraViewType.VideoFeed.
+        /// Defaults to CameraViewType.ScannerFeed.
         /// </remarks>
-        [Parameter] public CameraViewType CameraViewType { get; set; } = CameraViewType.VideoFeed;
+        [Parameter] public CameraViewType CameraViewType { get; set; } = CameraViewType.ScannerFeed;
 
         [Parameter] public int Width { get; set; } = 1280;
         [Parameter] public int Height { get; set; } = 720;

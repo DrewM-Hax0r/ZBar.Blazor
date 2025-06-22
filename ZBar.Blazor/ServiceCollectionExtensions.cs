@@ -12,7 +12,8 @@ namespace ZBar.Blazor
         /// <returns>The continuing IServiceCollection chain</returns>
         public static IServiceCollection AddZBarServices(this IServiceCollection services)
         {
-            return services.AddSingleton<CameraInterop>();
+            return services.AddSingleton<CameraInterop>()
+                .AddSingleton<ImageInterop>();
         }
     }
 }

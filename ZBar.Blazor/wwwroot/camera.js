@@ -2,7 +2,7 @@ let activeVideoStreams = {};
 let activeVideoRefreshIntervals = {};
 let activeImageScanners = {};
 
-export function startVideoFeed(dotNet, video, canvas, deviceId, scanInterval, scannerOptions, verbose) {
+export function startVideoFeed(dotNetScanner, video, canvas, deviceId, scanInterval, scannerOptions, verbose) {
     // Use the provided device, or fall back to system default
     const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : true };
 
@@ -33,7 +33,7 @@ export function startVideoFeed(dotNet, video, canvas, deviceId, scanInterval, sc
                                     console.log(symbol);
                                 }
                             });
-                            dotNet.invokeMethodAsync('OnAfterScan', results);
+                            dotNetScanner.invokeMethodAsync('OnAfterScan', results);
                         });
                     }
                 }, scanInterval);

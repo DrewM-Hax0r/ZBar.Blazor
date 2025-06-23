@@ -2,6 +2,14 @@
 
 <PageTitle>ZBarImage</PageTitle>
 <div class="page">
-    <ZBarImage @ref="Image" />
-    <InputFile OnChange="LoadImage" />
+    <ZBarImage @ref="Image" OnImageLoadSuccess="() => ImageLoadFailed = false" OnImageLoadFailure="() => ImageLoadFailed = true" />
+    <div class="tools">
+        <div>
+            <InputFile OnChange="LoadImage" />
+            @if (ImageLoadFailed)
+            {
+                <div class="errorText">The provided file could not be interpreted as image data.</div>
+            }
+        </div>
+    </div>
 </div>

@@ -12,6 +12,7 @@ namespace ZBar.Blazor
         /// <returns>The continuing IServiceCollection chain</returns>
         public static IServiceCollection AddZBarServices(this IServiceCollection services)
         {
+            // TODO: dont need services if managing interop classes internally?
             return services.AddSingleton<CameraInterop>()
                 .AddSingleton<ImageInterop>();
         }

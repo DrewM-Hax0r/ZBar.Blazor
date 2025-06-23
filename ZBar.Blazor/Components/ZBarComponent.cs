@@ -7,8 +7,6 @@ namespace ZBar.Blazor.Components
 {
     public abstract class ZBarComponent : ComponentBase, IDisposable
     {
-        internal readonly ScannerInterop Scanner;
-
         /// <summary>
         /// Specify one or more barcode types to scan for. Multiple types can be combined as flags.
         /// Setting only the barcode types applicable to your workflow can improve performance.
@@ -86,9 +84,11 @@ namespace ZBar.Blazor.Components
 
         private protected readonly ScannerOptions ScannerOptions;
 
+        internal readonly ScannerInterop ScannerInterop;
+
         private protected ZBarComponent()
         {
-            Scanner = new ScannerInterop(this);
+            ScannerInterop = new ScannerInterop(this);
             ScannerOptions = new();
             ScanFor = ScannerOptions.ScanFor;
             MinimumValueLength = ScannerOptions.MinimumValueLength;
@@ -231,9 +231,9 @@ namespace ZBar.Blazor.Components
             return ScannerOptions.OverrideIncludeCheckDigit(barcodeType, value);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            Scanner?.Dispose();
+            ScannerInterop?.Dispose();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿<h3>ZBarImage</h3>
+﻿@inherits ZBarComponent
 
-@code {
-
-}
+<div class="zBarImage" style="@GetContainerDisplay()">
+    <canvas @ref="Canvas" style="@GetCanvasDisplay()" />
+</div>

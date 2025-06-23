@@ -115,3 +115,10 @@ main {
 code {
     color: #c02d76;
 }
+
+.tools {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 8px 0;
+}

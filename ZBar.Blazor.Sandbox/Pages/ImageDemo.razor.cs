@@ -8,6 +8,7 @@ namespace ZBar.Blazor.Sandbox.Pages
         private const long MAX_FILESIZE_BYTES = 10240000;
 
         private ZBarImage Image;
+        private bool ImageLoadFailed;
 
         private async Task LoadImage(InputFileChangeEventArgs args)
         {

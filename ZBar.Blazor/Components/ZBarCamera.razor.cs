@@ -66,7 +66,7 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         public async Task StartVideoFeed(string hardwareDeviceId = null, bool verbose = false)
         {
-            await CameraInterop.StartVideoFeed(Scanner.Interop, Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, verbose);
+            await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, verbose);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace ZBar.Blazor.Components
 
         public async ValueTask DisposeAsync()
         {
-            await CameraInterop.EndVideoFeed(Video);
+            await this.EndVideoFeed();
         }
 
         private string GetContainerDisplay()

@@ -3,7 +3,7 @@
 
 <PageTitle>ZBarCamera</PageTitle>
 <div class="page">
-    <ZBarCamera @ref="Camera" AutoScan="@AutoScan" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
+    <ZBarCamera @ref="Camera" AutoScan="@AutoScan" Verbose="@Verbose" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
     <div class="tools">
         <div class="section">
             <button class="btn btn-primary" @onclick="StartVideoFeed">Start</button>
@@ -29,6 +29,17 @@
                 <div>
                     <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOff" checked="@(!AutoScan)" @onchange="@(() => AutoScan = false)">
                     <label class="form-check-label" for="AutoScanOff">Off</label>
+                </div>
+            </div>
+            <label class="form-check-label description" style="margin-left: 8px;">Verbose:</label>
+            <div class="radioSelection">
+                <div>
+                    <input class="form-check-input" type="radio" name="verbose" id="VerboseOn" checked="@Verbose" @onchange="@(() => Verbose = true)">
+                    <label class="form-check-label" for="VerboseOn">On</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="verbose" id="VerboseOff" checked="@(!Verbose)" @onchange="@(() => Verbose = false)">
+                    <label class="form-check-label" for="VerboseOff">Off</label>
                 </div>
             </div>
         </div>
@@ -75,6 +86,7 @@
     private ZBarCamera Camera;
 
     private bool AutoScan { get; set; } = true;
+    private bool Verbose { get; set; } = true;
     private CameraViewType CameraView { get; set; } = CameraViewType.VideoFeed;
 
     private HardwareDevice[] AvailableHardwareDevices;

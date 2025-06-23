@@ -33,6 +33,12 @@ namespace ZBar.Blazor.Interop
             await module.InvokeVoidAsync("endVideoFeed", video);
         }
 
+        public async Task SetVerbosity(ElementReference video, bool value)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("setVerbosity", video, value);
+        }
+
         public async Task EnableAutoScan(DotNetObjectReference<ScannerInterop> interop, ElementReference video, ElementReference canvas, int scanInterval, bool verbose)
         {
             var module = await moduleTask.Value;

@@ -39,9 +39,6 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         [Parameter] public bool Verbose { get; set; } = false;
 
-        //[Parameter] public int Width { get; set; } = 1280;
-        //[Parameter] public int Height { get; set; } = 720;
-
         private ElementReference Video;
         private ElementReference Canvas;
 
@@ -54,10 +51,29 @@ namespace ZBar.Blazor.Components
         {
             await base.SetParametersAsync(parameters);
 
+            bool? updateAutoScan = null;
+            bool? updateVerbose = null;
+
             if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan))
+            {
+                updateAutoScan = autoScan;
+            }
+
+            if (parameters.TryGetValue<bool>(nameof(Verbose), out var verbose))
+            {
+                updateVerbose = verbose;
+            }
+
+            // Call async methods after all reads to ParameterView have completed to avoid stale ParameterView context
+            if (updateAutoScan.HasValue)
             {
                 if (autoScan) await CameraInterop.EnableAutoScan(ScannerInterop.Interop, Video, Canvas, ScanInterval, Verbose);
                 else await CameraInterop.DisableAutoScan(Video);
+            }
+
+            if (updateVerbose.HasValue)
+            {
+                await CameraInterop.SetVerbosity(Video, verbose);
             }
         }
 

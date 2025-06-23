@@ -24,13 +24,25 @@ namespace ZBar.Blazor.Interop
         public async Task StartVideoFeed(DotNetObjectReference<ScannerInterop> interop, ElementReference video, ElementReference canvas, string deviceId, int scanInterval, ScannerOptions scannerOptions, bool verbose)
         {
             var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("startVideoFeed", interop, video, canvas, deviceId, scanInterval, scannerOptions.Export(), verbose);
+            await module.InvokeVoidAsync("startVideoFeed", interop, video, canvas, deviceId, scannerOptions.AutoScan, scanInterval, scannerOptions.Export(), verbose);
         }
 
         public async Task EndVideoFeed(ElementReference video)
         {
             var module = await moduleTask.Value;
             await module.InvokeVoidAsync("endVideoFeed", video);
+        }
+
+        public async Task EnableAutoScan(DotNetObjectReference<ScannerInterop> interop, ElementReference video, ElementReference canvas, int scanInterval, bool verbose)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("enableAutoScan", interop, video, canvas, scanInterval, verbose);
+        }
+
+        public async Task DisableAutoScan(ElementReference video)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("disableAutoScan", video);
         }
 
         public async ValueTask DisposeAsync()

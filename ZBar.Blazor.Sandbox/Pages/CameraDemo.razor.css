@@ -1,6 +1,6 @@
 ﻿::deep .zBarCamera {
     width: 100%;
-    height: calc(100% - 230px);
+    height: calc(100% - 250px);
 }
 
 h5 {
@@ -58,7 +58,7 @@ h5 {
     color: gray;
 }
 
-.cameraViewSelection {
+.radioSelection {
     display: flex;
     gap: 24px;
     flex-wrap: wrap;

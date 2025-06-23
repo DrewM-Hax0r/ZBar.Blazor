@@ -78,6 +78,7 @@
             BarcodeType.CODE_128
         ];
 
+        public bool AutoScan { get; set; } = true;
         public BarcodeType ScanFor { get; set; } = BarcodeType.ALL;
         public int MinimumValueLength { get; set; } = 0;
         public int MaximumValueLength { get; set; } = 0;

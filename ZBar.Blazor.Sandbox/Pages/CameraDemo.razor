@@ -3,7 +3,7 @@
 
 <PageTitle>ZBarCamera</PageTitle>
 <div class="page">
-    <ZBarCamera @ref="Camera" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
+    <ZBarCamera @ref="Camera" AutoScan="@AutoScan" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
     <div class="tools">
         <div class="section">
             <button class="btn btn-primary" @onclick="StartVideoFeed">Start</button>
@@ -18,6 +18,36 @@
                     }
                 }
             </select>
+        </div>
+        <div class="section">
+            <label class="form-check-label description">Auto Scan:</label>
+            <div class="radioSelection">
+                <div>
+                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOn" checked="@AutoScan" @onchange="@(() => AutoScan = true)">
+                    <label class="form-check-label" for="AutoScanOn">On</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOff" checked="@(!AutoScan)" @onchange="@(() => AutoScan = false)">
+                    <label class="form-check-label" for="AutoScanOff">Off</label>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <label class="form-check-label description">Camera View Type:</label>
+            <div class="radioSelection">
+                <div>
+                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeVideoFeed" checked="@(CameraView == CameraViewType.VideoFeed)" @onchange="@(() => CameraView = CameraViewType.VideoFeed)">
+                    <label class="form-check-label" for="CameraViewTypeVideoFeed">Video Feed</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeScannerFeed" checked="@(CameraView == CameraViewType.ScannerFeed)" @onchange="@(() => CameraView = CameraViewType.ScannerFeed)">
+                    <label class="form-check-label" for="CameraViewTypeScannerFeed">Scanner Feed</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeNone" checked="@(CameraView == CameraViewType.None)" @onchange="@(() => CameraView = CameraViewType.None)">
+                    <label class="form-check-label" for="CameraViewTypeNone">None</label>
+                </div>
+            </div>
         </div>
         <div class="section foundBarcodes">
             <h5>Found Barcodes</h5>
@@ -38,29 +68,13 @@
                 }
             </div>
         </div>
-        <div class="section">
-            <label class="form-check-label description">Camera View Type:</label>
-            <div class="cameraViewSelection">
-                <div>
-                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeVideoFeed" checked="@(CameraView == CameraViewType.VideoFeed)" @onchange="@(() => CameraView = CameraViewType.VideoFeed)">
-                    <label class="form-check-label" for="CameraViewTypeVideoFeed">Video Feed</label>
-                </div>
-                <div>
-                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeScannerFeed" checked="@(CameraView == CameraViewType.ScannerFeed)" @onchange="@(() => CameraView = CameraViewType.ScannerFeed)">
-                    <label class="form-check-label" for="CameraViewTypeScannerFeed">Scanner Feed</label>
-                </div>
-                <div>
-                    <input class="form-check-input" type="radio" name="cameraViewType" id="CameraViewTypeNone" checked="@(CameraView == CameraViewType.None)" @onchange="@(() => CameraView = CameraViewType.None)">
-                    <label class="form-check-label" for="CameraViewTypeNone">None</label>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
 @code {
     private ZBarCamera Camera;
 
+    private bool AutoScan { get; set; } = true;
     private CameraViewType CameraView { get; set; } = CameraViewType.VideoFeed;
 
     private HardwareDevice[] AvailableHardwareDevices;
@@ -80,7 +94,7 @@
     private async Task StartVideoFeed()
     {
         if (SelectedHardwareDeviceId != null) {
-            await Camera.StartVideoFeed(SelectedHardwareDeviceId, verbose: true);
+            await Camera.StartVideoFeed(SelectedHardwareDeviceId);
         }
     }
 

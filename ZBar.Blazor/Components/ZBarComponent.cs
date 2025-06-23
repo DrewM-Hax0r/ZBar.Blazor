@@ -8,6 +8,14 @@ namespace ZBar.Blazor.Components
     public abstract class ZBarComponent : ComponentBase, IDisposable
     {
         /// <summary>
+        /// Specifies that barcode scanning should occur automatically whenever new image data is available.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to true.
+        /// </remarks>
+        [Parameter] public bool AutoScan { get; set; }
+
+        /// <summary>
         /// Specify one or more barcode types to scan for. Multiple types can be combined as flags.
         /// Setting only the barcode types applicable to your workflow can improve performance.
         /// </summary>
@@ -90,6 +98,7 @@ namespace ZBar.Blazor.Components
         {
             ScannerInterop = new ScannerInterop(this);
             ScannerOptions = new();
+            AutoScan = ScannerOptions.AutoScan;
             ScanFor = ScannerOptions.ScanFor;
             MinimumValueLength = ScannerOptions.MinimumValueLength;
             MaximumValueLength = ScannerOptions.MaximumValueLength;
@@ -102,6 +111,11 @@ namespace ZBar.Blazor.Components
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             await base.SetParametersAsync(parameters);
+
+            if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan))
+            {
+                ScannerOptions.AutoScan = autoScan;
+            }
 
             if (parameters.TryGetValue<BarcodeType>(nameof(ScanFor), out var scanFor))
             {

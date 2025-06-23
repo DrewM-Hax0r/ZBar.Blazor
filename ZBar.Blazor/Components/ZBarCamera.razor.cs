@@ -14,6 +14,7 @@ namespace ZBar.Blazor.Components
         [Inject] CameraInterop CameraInterop { get; set; }
 
         /// <summary>
+        /// This value is applicable only when AutoScan is enabled.
         /// The rate in milliseconds at which the camera image data will be polled to process for bar code information.
         /// Lower values increase responsiveness at the expense of requiring more processing power.
         /// </summary>
@@ -30,8 +31,16 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         [Parameter] public CameraViewType CameraViewType { get; set; } = CameraViewType.ScannerFeed;
 
-        [Parameter] public int Width { get; set; } = 1280;
-        [Parameter] public int Height { get; set; } = 720;
+        /// <summary>
+        /// When enabled, additional information will be printed to the browser console at key lifecycle events for ZBarCamera functionality. Useful for debugging purposes.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to false.
+        /// </remarks>
+        [Parameter] public bool Verbose { get; set; } = false;
+
+        //[Parameter] public int Width { get; set; } = 1280;
+        //[Parameter] public int Height { get; set; } = 720;
 
         private ElementReference Video;
         private ElementReference Canvas;
@@ -39,6 +48,17 @@ namespace ZBar.Blazor.Components
         protected override void OnInitialized()
         {
             base.OnInitialized();
+        }
+
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            await base.SetParametersAsync(parameters);
+
+            if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan))
+            {
+                if (autoScan) await CameraInterop.EnableAutoScan(ScannerInterop.Interop, Video, Canvas, ScanInterval, Verbose);
+                else await CameraInterop.DisableAutoScan(Video);
+            }
         }
 
         /// <summary>
@@ -53,24 +73,21 @@ namespace ZBar.Blazor.Components
         }
 
         /// <summary>
-        /// Starts requested camera and begins scanning for barcode information.
+        /// Starts the requested camera's video feed.
         /// </summary>
         /// <param name="hardwareDeviceId">
         /// Specifies the hardware device to use for video input. If not provided, the system default will be used.
         /// </param>
-        /// <param name="verbose">
-        /// Enables verbose browser console output for scanner options configuration. Useful for debugging purposes.
-        /// </param>
         /// <remarks>
         /// Calling this function will request camera permissions from the user if not already approved.
         /// </remarks>
-        public async Task StartVideoFeed(string hardwareDeviceId = null, bool verbose = false)
+        public async Task StartVideoFeed(string hardwareDeviceId = null)
         {
-            await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, verbose);
+            await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, Verbose);
         }
 
         /// <summary>
-        /// Stops the camera from recording and related barcode scanning processes.
+        /// Stops the current camera's video feed.
         /// </summary>
         public async Task EndVideoFeed()
         {

@@ -110,8 +110,6 @@ namespace ZBar.Blazor.Components
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
-            await base.SetParametersAsync(parameters);
-
             if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan))
             {
                 ScannerOptions.AutoScan = autoScan;
@@ -151,6 +149,8 @@ namespace ZBar.Blazor.Components
             {
                 ScannerOptions.IncludeCheckDigit = includeCheckDigit;
             }
+
+            await base.SetParametersAsync(parameters);
         }
 
         /// <summary>

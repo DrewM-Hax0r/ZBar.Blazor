@@ -49,32 +49,23 @@ namespace ZBar.Blazor.Components
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
+            bool? updatedAutoScan = null;
+            bool? updatedVerbose = null;
+
+            if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan) && autoScan != AutoScan)
+            {
+                updatedAutoScan = autoScan;
+            }
+
+            if (parameters.TryGetValue<bool>(nameof(Verbose), out var verbose) && verbose != Verbose)
+            {
+                updatedVerbose = verbose;
+            }
+
             await base.SetParametersAsync(parameters);
 
-            bool? updateAutoScan = null;
-            bool? updateVerbose = null;
-
-            if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan))
-            {
-                updateAutoScan = autoScan;
-            }
-
-            if (parameters.TryGetValue<bool>(nameof(Verbose), out var verbose))
-            {
-                updateVerbose = verbose;
-            }
-
             // Call async methods after all reads to ParameterView have completed to avoid stale ParameterView context
-            if (updateAutoScan.HasValue)
-            {
-                if (autoScan) await CameraInterop.EnableAutoScan(ScannerInterop.Interop, Video, Canvas, ScanInterval, Verbose);
-                else await CameraInterop.DisableAutoScan(Video);
-            }
-
-            if (updateVerbose.HasValue)
-            {
-                await CameraInterop.SetVerbosity(Video, verbose);
-            }
+            await UpdateJsConfiguration(updatedAutoScan, updatedVerbose);
         }
 
         /// <summary>
@@ -110,9 +101,18 @@ namespace ZBar.Blazor.Components
             await CameraInterop.EndVideoFeed(Video);
         }
 
-        public async ValueTask DisposeAsync()
+        private async Task UpdateJsConfiguration(bool? autoScan, bool? verbose)
         {
-            await this.EndVideoFeed();
+            if (autoScan.HasValue)
+            {
+                if (autoScan.Value) await CameraInterop.EnableAutoScan(ScannerInterop.Interop, Video, Canvas, ScanInterval, Verbose);
+                else await CameraInterop.DisableAutoScan(Video);
+            }
+
+            if (verbose.HasValue)
+            {
+                await CameraInterop.SetVerbosity(Video, verbose.Value);
+            }
         }
 
         private string GetContainerDisplay()
@@ -134,6 +134,11 @@ namespace ZBar.Blazor.Components
             if (CameraViewType == CameraViewType.ScannerFeed)
                 return "display: block;";
             else return "display: none;";
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await this.EndVideoFeed();
         }
     }
 }

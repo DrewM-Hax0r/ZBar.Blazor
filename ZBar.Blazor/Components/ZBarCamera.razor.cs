@@ -11,8 +11,6 @@ namespace ZBar.Blazor.Components
     /// </summary>
     partial class ZBarCamera : IAsyncDisposable
     {
-        [Inject] CameraInterop CameraInterop { get; set; }
-
         /// <summary>
         /// This value is applicable only when AutoScan is enabled.
         /// The rate in milliseconds at which the camera image data will be polled to process for bar code information.
@@ -39,12 +37,14 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         [Parameter] public bool Verbose { get; set; } = false;
 
+        private CameraInterop CameraInterop;
         private ElementReference Video;
         private ElementReference Canvas;
 
         protected override void OnInitialized()
         {
             base.OnInitialized();
+            CameraInterop = new CameraInterop(JsRuntime); // TODO: [.NET 10] Switch to constructor injection
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
@@ -139,6 +139,7 @@ namespace ZBar.Blazor.Components
         public async ValueTask DisposeAsync()
         {
             await this.EndVideoFeed();
+            await CameraInterop.DisposeAsync();
         }
     }
 }

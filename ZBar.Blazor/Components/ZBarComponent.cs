@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using ZBar.Blazor.Config;
 using ZBar.Blazor.Dtos;
 using ZBar.Blazor.Interop;
@@ -7,6 +8,8 @@ namespace ZBar.Blazor.Components
 {
     public abstract class ZBarComponent : ComponentBase, IDisposable
     {
+        [Inject] protected IJSRuntime JsRuntime { get; set; }
+
         /// <summary>
         /// Specifies that barcode scanning should occur automatically whenever new image data is available.
         /// </summary>
@@ -92,11 +95,10 @@ namespace ZBar.Blazor.Components
 
         private protected readonly ScannerOptions ScannerOptions;
 
-        internal readonly ScannerInterop ScannerInterop;
+        internal ScannerInterop ScannerInterop;
 
         private protected ZBarComponent()
         {
-            ScannerInterop = new ScannerInterop(this);
             ScannerOptions = new();
             AutoScan = ScannerOptions.AutoScan;
             ScanFor = ScannerOptions.ScanFor;
@@ -106,6 +108,12 @@ namespace ZBar.Blazor.Components
             EnableFullCharacterSet = ScannerOptions.EnableFullCharacterSet;
             HonorCheckDigit = ScannerOptions.HonorCheckDigit;
             IncludeCheckDigit = ScannerOptions.IncludeCheckDigit;
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            ScannerInterop = new ScannerInterop(this); // TODO: [.NET 10] Switch to constructor injection
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)

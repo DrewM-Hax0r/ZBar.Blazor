@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using ZBar.Blazor.Config;
 using ZBar.Blazor.Interop;
 
@@ -10,8 +9,6 @@ namespace ZBar.Blazor.Components
     /// </summary>
     partial class ZBarImage : IDisposable, IAsyncDisposable
     {
-        [Inject] private IJSRuntime JsRuntime { get; set; }
-
         /// <summary>
         /// Specifies the type of image output displayed from this camera.
         /// </summary>

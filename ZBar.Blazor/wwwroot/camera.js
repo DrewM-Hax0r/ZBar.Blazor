@@ -96,10 +96,14 @@ export function getAvailableCameras() {
 function scanVideoFeed(dotNetScanner, video, canvas, canvasContext) {
     let scannerContext = activeImageScannerContexts[video];
     if (scannerContext && video.videoWidth) {
+        if (scannerContext.verbose) {
+            console.log('Scanning video feed (deviceId:' + scannerContext.deviceId + ')');
+        }
+
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        canvasContext.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
+        canvasContext.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const imageData = canvasContext.getImageData(0, 0, video.videoWidth, video.videoHeight);
         window.zbar.scanImageData(imageData, scannerContext.scanner).then(function (symbols) {
             let results = [];

@@ -38,9 +38,14 @@ export function setVerbosity(video, value) {
     }
 }
 
+export function scanOnce(dotNetScanner, video, canvas) {
+    let canvasContext = getCanvasContext(canvas);
+    scanVideoFeed(dotNetScanner, video, canvas, canvasContext);
+}
+
 export function enableAutoScan(dotNetScanner, video, canvas, scanInterval) {
     if (activeImageScannerContexts[video] && !activeVideoRefreshIntervals[video]) {
-        let canvasContext = canvas.getContext('2d', { willReadFrequently: true });
+        let canvasContext = getCanvasContext(canvas);
         activeVideoRefreshIntervals[video] = setInterval(function () {
             scanVideoFeed(dotNetScanner, video, canvas, canvasContext);
         }, scanInterval);
@@ -147,6 +152,10 @@ function releaseVideoResources(video) {
             console.log('Video feed ended (deviceId:' + deviceId + ')');
         }
     }
+}
+
+function getCanvasContext(canvas) {
+    return canvas.getContext('2d', { willReadFrequently: true });
 }
 
 function createScannerContext(scanner, deviceId, verbose) {

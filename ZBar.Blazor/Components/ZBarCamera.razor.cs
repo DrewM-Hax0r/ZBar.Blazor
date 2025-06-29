@@ -101,6 +101,21 @@ namespace ZBar.Blazor.Components
             await CameraInterop.EndVideoFeed(Video);
         }
 
+        /// <summary>
+        /// Performs a single scan on the currently active video feed.
+        /// Scan results will be provided to the <see cref="ZBarComponent.OnBarcodesFound" /> and <see cref="ZBarComponent.OnBarcodesNotFound" /> event callbacks.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method has no effect if the video feed has not been started or if <see cref="ZBarComponent.AutoScan" /> is enabled.
+        /// </remarks>
+        public async Task Scan()
+        {
+            if (!AutoScan)
+            {
+                await CameraInterop.ScanOnce(ScannerInterop.Interop, Video, Canvas);
+            }
+        }
+
         private async Task UpdateJsConfiguration(bool? autoScan, bool? verbose)
         {
             if (autoScan.HasValue)

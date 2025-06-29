@@ -33,12 +33,6 @@ namespace ZBar.Blazor.Interop
             await module.InvokeVoidAsync("endVideoFeed", video);
         }
 
-        public async Task SetVerbosity(ElementReference video, bool value)
-        {
-            var module = await moduleTask.Value;
-            await module.InvokeVoidAsync("setVerbosity", video, value);
-        }
-
         public async Task ScanOnce(DotNetObjectReference<ScannerInterop> interop, ElementReference video, ElementReference canvas)
         {
             var module = await moduleTask.Value;
@@ -55,6 +49,18 @@ namespace ZBar.Blazor.Interop
         {
             var module = await moduleTask.Value;
             await module.InvokeVoidAsync("disableAutoScan", video);
+        }
+
+        public async Task UpdateScanInterval(DotNetObjectReference<ScannerInterop> interop, ElementReference video, ElementReference canvas, int scanInterval)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("updateScanInterval", interop, video, canvas, scanInterval);
+        }
+
+        public async Task UpdateVerbosity(ElementReference video, bool value)
+        {
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("updateVerbosity", video, value);
         }
 
         public async ValueTask DisposeAsync()

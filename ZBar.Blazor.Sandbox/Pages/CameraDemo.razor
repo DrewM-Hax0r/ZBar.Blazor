@@ -3,7 +3,7 @@
 
 <PageTitle>ZBarCamera</PageTitle>
 <div class="page">
-    <ZBarCamera @ref="Camera" AutoScan="@AutoScan" Verbose="@Verbose" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
+    <ZBarCamera @ref="Camera" AutoScan="@AutoScan" ScanInterval="@AutoScanInterval" Verbose="@Verbose" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
     <div class="tools">
         <div class="section">
             <button class="btn btn-primary" @onclick="StartVideoFeed">Start</button>
@@ -20,8 +20,8 @@
             </select>
         </div>
         <div class="section">
-            <label class="form-check-label description">Auto Scan:</label>
-            <div class="radioSelection">
+            <label class="form-check-label description" style="padding-top: 4px;">Auto Scan:</label>
+            <div class="radioSelection" style="padding-top: 4px;">
                 <div>
                     <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOn" checked="@AutoScan" @onchange="@(() => AutoScan = true)">
                     <label class="form-check-label" for="AutoScanOn">On</label>
@@ -31,7 +31,24 @@
                     <label class="form-check-label" for="AutoScanOff">Off</label>
                 </div>
             </div>
-            <label class="form-check-label description" style="margin-left: 8px;">Verbose:</label>
+            @if (AutoScan)
+            {
+                <label class="form-check-label description" style="padding-top: 4px; margin-left: 5px">Scan Interval:</label>
+                <div>
+                    <input type="range" id="ScanInterval" list="ScanIntervalMarkers" min="100" max="2000" step="100" @bind-value="@AutoScanInterval" />
+                    <datalist id="ScanIntervalMarkers">
+                        <option value="100" label="100ms" style="left: -8px;"></option>
+                        <option value="1000" label="1s" style="left: 90px;"></option>
+                        <option value="2000" label="2s" style="left: 190px;"></option>
+                    </datalist>
+                </div>
+            } else
+            {
+                <button class="btn btn-secondary btn-sm" style="margin-left: 10px;" @onclick="Scan">Scan Now</button>
+            }
+        </div>
+        <div class="section">
+            <label class="form-check-label description">Verbose:</label>
             <div class="radioSelection">
                 <div>
                     <input class="form-check-input" type="radio" name="verbose" id="VerboseOn" checked="@Verbose" @onchange="@(() => Verbose = true)">
@@ -86,6 +103,7 @@
     private ZBarCamera Camera;
 
     private bool AutoScan { get; set; } = true;
+    private int AutoScanInterval { get; set; } = 1000;
     private bool Verbose { get; set; } = true;
     private CameraViewType CameraView { get; set; } = CameraViewType.VideoFeed;
 
@@ -113,6 +131,11 @@
     private async Task EndVideoFeed()
     {
         await Camera.EndVideoFeed();
+    }
+
+    private async Task Scan()
+    {
+        await Camera.Scan();
     }
 
     private void OnBarcodesFound(ScanResult scanResult)

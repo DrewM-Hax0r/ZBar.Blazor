@@ -2,6 +2,24 @@ let activeVideoStreams = {};
 let activeVideoRefreshIntervals = {};
 let activeImageScannerContexts = {};
 
+export function getAvailableCameras() {
+    return new Promise(function (resolve, reject) {
+        // Request access to video devices so that all device info is available
+        // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function () {
+            navigator.mediaDevices.enumerateDevices().then((devices) => {
+                const cameras = devices.filter(function (device) { return device.kind === 'videoinput' });
+                resolve(cameras.map(function (camera) {
+                    return { id: camera.deviceId, name: camera.label };
+                }));
+            });
+        }).catch(function (error) {
+            console.log(error);
+            reject(new Error(error));
+        });
+    });
+}
+
 export function startVideoFeed(dotNetScanner, video, canvas, deviceId, autoScan, scanInterval, scannerOptions, verbose) {
     // Use the provided device, or fall back to system default
     const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : true };
@@ -32,41 +50,6 @@ export function startVideoFeed(dotNetScanner, video, canvas, deviceId, autoScan,
     });
 }
 
-export function setVerbosity(video, value) {
-    if (activeImageScannerContexts[video]) {
-        activeImageScannerContexts[video].verbose = value;
-    }
-}
-
-export function scanOnce(dotNetScanner, video, canvas) {
-    let canvasContext = getCanvasContext(canvas);
-    scanVideoFeed(dotNetScanner, video, canvas, canvasContext);
-}
-
-export function enableAutoScan(dotNetScanner, video, canvas, scanInterval) {
-    if (activeImageScannerContexts[video] && !activeVideoRefreshIntervals[video]) {
-        let canvasContext = getCanvasContext(canvas);
-        activeVideoRefreshIntervals[video] = setInterval(function () {
-            scanVideoFeed(dotNetScanner, video, canvas, canvasContext);
-        }, scanInterval);
-
-        if (activeImageScannerContexts[video].verbose) {
-            console.log('Auto Scan enabled for video feed (deviceId:' + activeImageScannerContexts[video].deviceId + ') with scan interval of ' + scanInterval + 'ms');
-        }
-    }
-}
-
-export function disableAutoScan(video) {
-    if (activeVideoRefreshIntervals[video]) {
-        clearInterval(activeVideoRefreshIntervals[video]);
-        delete activeVideoRefreshIntervals[video];
-
-        if (activeImageScannerContexts[video].verbose) {
-            console.log('Auto Scan disabled for video feed (deviceId:' + activeImageScannerContexts[video].deviceId + ')');
-        }
-    }
-}
-
 export function endVideoFeed(video) {
     if (activeVideoStreams[video]) {
         let stream = video.srcObject;
@@ -80,22 +63,48 @@ export function endVideoFeed(video) {
     }
 }
 
-export function getAvailableCameras() {
-    return new Promise(function (resolve, reject) {
-        // Request access to video devices so that all device info is available
-        // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaDeviceInfo
-        navigator.mediaDevices.getUserMedia({ video: true }).then(function () {
-            navigator.mediaDevices.enumerateDevices().then((devices) => {
-                const cameras = devices.filter(function (device) { return device.kind === 'videoinput' });
-                resolve(cameras.map(function (camera) {
-                    return { id: camera.deviceId, name: camera.label };
-                }));
-            });
-        }).catch(function (error) {
-            console.log(error);
-            reject(new Error(error));
-        });
-    });
+export function scanOnce(dotNetScanner, video, canvas) {
+    let canvasContext = getCanvasContext(canvas);
+    scanVideoFeed(dotNetScanner, video, canvas, canvasContext);
+}
+
+export function enableAutoScan(dotNetScanner, video, canvas, scanInterval) {
+    if (activeImageScannerContexts[video] && !activeVideoRefreshIntervals[video]) {
+        setAutoScanInterval(dotNetScanner, video, canvas, scanInterval);
+
+        if (activeImageScannerContexts[video].verbose) {
+            console.log('Auto Scan enabled for video feed (deviceId:' + activeImageScannerContexts[video].deviceId + ') with scan interval of ' + scanInterval + 'ms');
+        }
+    }
+}
+
+export function disableAutoScan(video) {
+    if (activeVideoRefreshIntervals[video]) {
+        removeAutoScanInterval(video);
+        if (activeImageScannerContexts[video].verbose) {
+            console.log('Auto Scan disabled for video feed (deviceId:' + activeImageScannerContexts[video].deviceId + ')');
+        }
+    }
+}
+
+export function updateScanInterval(dotNetScanner, video, canvas, scanInterval) {
+    if (activeVideoRefreshIntervals[video]) {
+        removeAutoScanInterval(video);
+
+        if (activeImageScannerContexts[video]) {
+            setAutoScanInterval(dotNetScanner, video, canvas, scanInterval);
+
+            if (activeImageScannerContexts[video].verbose) {
+                console.log('Auto Scan interval updated to ' + scanInterval + 'ms for video feed (deviceId:' + activeImageScannerContexts[video].deviceId + ')');
+            }
+        }
+    }
+}
+
+export function updateVerbosity(video, value) {
+    if (activeImageScannerContexts[video]) {
+        activeImageScannerContexts[video].verbose = value;
+    }
 }
 
 function scanVideoFeed(dotNetScanner, video, canvas, canvasContext) {
@@ -180,4 +189,16 @@ function setConfig(scannerContext, type, config, value) {
     if (scannerContext.verbose) {
         console.log('Set ' + zbar.ZBarSymbolType[type] + ' w/ ' + zbar.ZBarConfigType[config] + ' to ' + value + ' with result ' + result);
     }
+}
+
+function setAutoScanInterval(dotNetScanner, video, canvas, scanInterval) {
+    let canvasContext = getCanvasContext(canvas);
+    activeVideoRefreshIntervals[video] = setInterval(function () {
+        scanVideoFeed(dotNetScanner, video, canvas, canvasContext);
+    }, scanInterval);
+}
+
+function removeAutoScanInterval(video) {
+    clearInterval(activeVideoRefreshIntervals[video]);
+    delete activeVideoRefreshIntervals[video];
 }

@@ -1,6 +1,6 @@
 ﻿::deep .zBarCamera {
     width: 100%;
-    height: calc(100% - 250px);
+    height: calc(100% - 295px);
 }
 
 h5 {
@@ -62,4 +62,19 @@ h5 {
     display: flex;
     gap: 24px;
     flex-wrap: wrap;
+}
+
+#ScanInterval {
+    width: 205px;
+}
+
+#ScanIntervalMarkers {
+    display: block;
+    position: relative;
+    width: 205px;
+    font-size: 10px;
+}
+
+#ScanIntervalMarkers option {
+    position: absolute;
 }

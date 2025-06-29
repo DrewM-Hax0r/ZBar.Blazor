@@ -50,11 +50,17 @@ namespace ZBar.Blazor.Components
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             bool? updatedAutoScan = null;
+            int? updatedScanInterval = null;
             bool? updatedVerbose = null;
 
             if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan) && autoScan != AutoScan)
             {
                 updatedAutoScan = autoScan;
+            }
+
+            if (parameters.TryGetValue<int>(nameof(ScanInterval), out var scanInterval) && scanInterval != ScanInterval)
+            {
+                updatedScanInterval = scanInterval;
             }
 
             if (parameters.TryGetValue<bool>(nameof(Verbose), out var verbose) && verbose != Verbose)
@@ -65,7 +71,7 @@ namespace ZBar.Blazor.Components
             await base.SetParametersAsync(parameters);
 
             // Call async methods after all reads to ParameterView have completed to avoid stale ParameterView context
-            await UpdateJsConfiguration(updatedAutoScan, updatedVerbose);
+            await UpdateJsConfiguration(updatedAutoScan, updatedScanInterval, updatedVerbose);
         }
 
         /// <summary>
@@ -116,7 +122,7 @@ namespace ZBar.Blazor.Components
             }
         }
 
-        private async Task UpdateJsConfiguration(bool? autoScan, bool? verbose)
+        private async Task UpdateJsConfiguration(bool? autoScan, int? scanInterval, bool? verbose)
         {
             if (autoScan.HasValue)
             {
@@ -124,9 +130,14 @@ namespace ZBar.Blazor.Components
                 else await CameraInterop.DisableAutoScan(Video);
             }
 
+            if (scanInterval.HasValue)
+            {
+                await CameraInterop.UpdateScanInterval(ScannerInterop.Interop, Video, Canvas, scanInterval.Value);
+            }
+
             if (verbose.HasValue)
             {
-                await CameraInterop.SetVerbosity(Video, verbose.Value);
+                await CameraInterop.UpdateVerbosity(Video, verbose.Value);
             }
         }
 

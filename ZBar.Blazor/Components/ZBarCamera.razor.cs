@@ -7,7 +7,7 @@ namespace ZBar.Blazor.Components
 {
     /// <summary>
     /// A component which reads a video stream from any of the device's available video input
-    /// sources and continually scans the incoming video frames for barcode information.
+    /// sources and scans the incoming video frames for barcode information continuously or on commmand.
     /// </summary>
     partial class ZBarCamera : IAsyncDisposable
     {

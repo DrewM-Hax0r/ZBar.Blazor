@@ -1,6 +1,8 @@
-let activeVideoStreams = {};
-let activeVideoRefreshIntervals = {};
-let activeImageScannerContexts = {};
+import scanner from "./scanner.js";
+
+const activeVideoStreams = {};
+const activeVideoRefreshIntervals = {};
+const activeImageScannerContexts = {};
 
 export function getAvailableCameras() {
     return new Promise(function (resolve, reject) {
@@ -15,7 +17,6 @@ export function getAvailableCameras() {
             });
         }).catch(function (error) {
             console.log(error);
-            reject(new Error(error));
         });
     });
 }
@@ -25,10 +26,9 @@ export function startVideoFeed(dotNetScanner, video, canvas, deviceId, autoScan,
     const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : true };
 
     navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-        window.zbar.ZBarScanner.create().then(function (scanner) {
-            let scannerContext = createScannerContext(scanner, deviceId, verbose);
+        scanner.createNew(video, scannerOptions, function () {
+            let scannerContext = createScannerContext(deviceId, verbose);
             activeImageScannerContexts[video] = scannerContext;
-            configureScanner(scannerContext, scannerOptions);
 
             if (!activeVideoStreams[video]) {
                 video.srcObject = activeVideoStreams[video] = stream;
@@ -43,7 +43,7 @@ export function startVideoFeed(dotNetScanner, video, canvas, deviceId, autoScan,
                     enableAutoScan(dotNetScanner, video, canvas, scanInterval);
                 }
             }
-        });
+        }, verbose);
     }).catch(function (error) {
         console.log(error);
         reject(new Error(error));
@@ -108,7 +108,7 @@ export function updateVerbosity(video, value) {
 }
 
 function scanVideoFeed(dotNetScanner, video, canvas, canvasContext) {
-    let scannerContext = activeImageScannerContexts[video];
+    const scannerContext = activeImageScannerContexts[video];
     if (scannerContext && video.videoWidth) {
         if (scannerContext.verbose) {
             console.log('Scanning video feed (deviceId:' + scannerContext.deviceId + ')');
@@ -119,17 +119,10 @@ function scanVideoFeed(dotNetScanner, video, canvas, canvasContext) {
 
         canvasContext.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const imageData = canvasContext.getImageData(0, 0, video.videoWidth, video.videoHeight);
-        window.zbar.scanImageData(imageData, scannerContext.scanner).then(function (symbols) {
-            let results = [];
-            symbols.forEach(function (symbol) {
-                symbol.rawValue = symbol.decode();
-                results.push(symbol);
-                if (scannerContext.verbose) {
-                    console.log(symbol);
-                }
-            });
+
+        scanner.scan(video, imageData, function (results) {
             dotNetScanner.invokeMethodAsync('OnAfterScan', results);
-        });
+        }, scannerContext.verbose);
     }
 }
 
@@ -151,7 +144,7 @@ function releaseVideoResources(video) {
             verbose = activeImageScannerContexts[video].verbose;
             deviceId = activeImageScannerContexts[video].deviceId;
 
-            activeImageScannerContexts[video].scanner.destroy();
+            scanner.destroy(video);
             delete activeImageScannerContexts[video];
         }
 
@@ -167,28 +160,11 @@ function getCanvasContext(canvas) {
     return canvas.getContext('2d', { willReadFrequently: true });
 }
 
-function createScannerContext(scanner, deviceId, verbose) {
+function createScannerContext(deviceId, verbose) {
     return {
-        scanner: scanner,
         deviceId: deviceId,
         verbose: verbose
     };
-}
-
-function configureScanner(scannerContext, scannerOptions) {
-    scannerOptions.forEach(function (symbolOption) {
-        let type = zbar.ZBarSymbolType[symbolOption.symbolType];
-        symbolOption.configOptions.forEach(function (configOption) {
-            setConfig(scannerContext, type, zbar.ZBarConfigType[configOption.configType], configOption.value);
-        });
-    });
-}
-
-function setConfig(scannerContext, type, config, value) {
-    const result = scannerContext.scanner.setConfig(type, config, value);
-    if (scannerContext.verbose) {
-        console.log('Set ' + zbar.ZBarSymbolType[type] + ' w/ ' + zbar.ZBarConfigType[config] + ' to ' + value + ' with result ' + result);
-    }
 }
 
 function setAutoScanInterval(dotNetScanner, video, canvas, scanInterval) {

@@ -3,10 +3,11 @@ using Microsoft.JSInterop;
 using ZBar.Blazor.Config;
 using ZBar.Blazor.Dtos;
 using ZBar.Blazor.Interop;
+using static ZBar.Blazor.Config.ScannerOptions;
 
 namespace ZBar.Blazor.Components
 {
-    public abstract class ZBarComponent : ComponentBase, IDisposable
+    public abstract class ZBarComponent : ComponentBase, IDisposable, IAsyncDisposable
     {
         [Inject] protected IJSRuntime JsRuntime { get; set; }
 
@@ -93,6 +94,16 @@ namespace ZBar.Blazor.Components
         /// </summary>
         [Parameter] public EventCallback OnBarcodesNotFound { get; set; }
 
+        /// <summary>
+        /// When enabled, additional information will be printed to the browser console at key lifecycle events. Useful for debugging purposes.
+        /// </summary>
+        /// <remarks>
+        /// Defaults to false.
+        /// </remarks>
+        [Parameter] public bool Verbose { get; set; } = false;
+
+        protected abstract ElementReference ScannerKey { get; }
+
         private protected readonly ScannerOptions ScannerOptions;
 
         internal ScannerInterop ScannerInterop;
@@ -100,7 +111,7 @@ namespace ZBar.Blazor.Components
         private protected ZBarComponent()
         {
             ScannerOptions = new();
-            AutoScan = ScannerOptions.AutoScan;
+            AutoScan = true;
             ScanFor = ScannerOptions.ScanFor;
             MinimumValueLength = ScannerOptions.MinimumValueLength;
             MaximumValueLength = ScannerOptions.MaximumValueLength;
@@ -113,19 +124,16 @@ namespace ZBar.Blazor.Components
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            ScannerInterop = new ScannerInterop(this); // TODO: [.NET 10] Switch to constructor injection
+            ScannerInterop = new ScannerInterop(JsRuntime, this); // TODO: [.NET 10] Switch to constructor injection
         }
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
-            if (parameters.TryGetValue<bool>(nameof(AutoScan), out var autoScan))
-            {
-                ScannerOptions.AutoScan = autoScan;
-            }
+            var updatedSymbolOptions = new List<SymbolOption>();
 
-            if (parameters.TryGetValue<BarcodeType>(nameof(ScanFor), out var scanFor))
+            if (parameters.TryGetValue<BarcodeType>(nameof(ScanFor), out var scanFor) && scanFor != ScanFor)
             {
-                ScannerOptions.ScanFor = scanFor;
+                updatedSymbolOptions.AddRange(ScannerOptions.UpdateScanFor(scanFor));
             }
 
             if (parameters.TryGetValue<int>(nameof(MinimumValueLength), out var minimumValueLength))
@@ -159,6 +167,9 @@ namespace ZBar.Blazor.Components
             }
 
             await base.SetParametersAsync(parameters);
+
+            if (updatedSymbolOptions.Count != 0)
+                await ScannerInterop.UpdateScannerConfig(ScannerKey, [.. updatedSymbolOptions], Verbose);
         }
 
         /// <summary>
@@ -256,6 +267,11 @@ namespace ZBar.Blazor.Components
         public virtual void Dispose()
         {
             ScannerInterop?.Dispose();
+        }
+
+        public virtual async ValueTask DisposeAsync()
+        {
+            await ScannerInterop.DisposeAsync();
         }
     }
 }

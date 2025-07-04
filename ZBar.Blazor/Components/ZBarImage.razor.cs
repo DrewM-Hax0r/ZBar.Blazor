@@ -30,6 +30,8 @@ namespace ZBar.Blazor.Components
         private ImageInterop ImageInterop;
         private ElementReference Canvas;
 
+        protected override ElementReference ScannerKey => Canvas;
+
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -61,8 +63,9 @@ namespace ZBar.Blazor.Components
             ImageInterop?.Dispose();
         }
 
-        public async ValueTask DisposeAsync()
+        public override async ValueTask DisposeAsync()
         {
+            await base.DisposeAsync();
             await ImageInterop.DisposeAsync();
         }
     }

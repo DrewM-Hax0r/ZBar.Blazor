@@ -29,17 +29,11 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         [Parameter] public CameraViewType CameraViewType { get; set; } = CameraViewType.ScannerFeed;
 
-        /// <summary>
-        /// When enabled, additional information will be printed to the browser console at key lifecycle events for ZBarCamera functionality. Useful for debugging purposes.
-        /// </summary>
-        /// <remarks>
-        /// Defaults to false.
-        /// </remarks>
-        [Parameter] public bool Verbose { get; set; } = false;
-
         private CameraInterop CameraInterop;
         private ElementReference Video;
         private ElementReference Canvas;
+
+        protected override ElementReference ScannerKey => Video;
 
         protected override void OnInitialized()
         {
@@ -96,7 +90,7 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         public async Task StartVideoFeed(string hardwareDeviceId = null)
         {
-            await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, ScanInterval, ScannerOptions, Verbose);
+            await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, AutoScan, ScanInterval, ScannerOptions, Verbose);
         }
 
         /// <summary>
@@ -162,8 +156,9 @@ namespace ZBar.Blazor.Components
             else return "display: none;";
         }
 
-        public async ValueTask DisposeAsync()
+        public override async ValueTask DisposeAsync()
         {
+            await base.DisposeAsync();
             await this.EndVideoFeed();
             await CameraInterop.DisposeAsync();
         }

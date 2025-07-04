@@ -1,21 +1,33 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 using ZBar.Blazor.Components;
 using ZBar.Blazor.Config;
 using ZBar.Blazor.Dtos;
+using static ZBar.Blazor.Config.ScannerOptions;
 
 namespace ZBar.Blazor.Interop
 {
-    internal class ScannerInterop : IDisposable
+    internal class ScannerInterop : IDisposable, IAsyncDisposable
     {
+        private readonly Lazy<Task<IJSObjectReference>> ModuleTask;
         private readonly ZBarComponent Component;
+
         internal readonly DotNetObjectReference<ScannerInterop> Interop;
 
         [DynamicDependency(nameof(OnAfterScan))]
-        public ScannerInterop(ZBarComponent component)
+        public ScannerInterop(IJSRuntime jsRuntime, ZBarComponent component)
         {
             Component = component;
             Interop = DotNetObjectReference.Create(this);
+            ModuleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/ZBar.Blazor/scanner.js").AsTask());
+        }
+
+        public async Task UpdateScannerConfig(ElementReference key, SymbolOption[] scannerOptions, bool verbose)
+        {
+            var module = await ModuleTask.Value;
+            await module.InvokeVoidAsync("updateScannerConfig", key, scannerOptions, verbose);
         }
 
         [JSInvokable]
@@ -37,6 +49,15 @@ namespace ZBar.Blazor.Interop
             }).ToArray();
 
             return new ScanResult(barcodes);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (ModuleTask.IsValueCreated)
+            {
+                var module = await ModuleTask.Value;
+                await module.DisposeAsync();
+            }
         }
 
         public void Dispose()

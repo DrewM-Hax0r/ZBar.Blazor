@@ -1,4 +1,5 @@
 ﻿using ZBar.Blazor.Config;
+using static ZBar.Blazor.Config.ScannerOptions;
 
 namespace ZBar.Blazor.Tests.ConfigTests
 {
@@ -17,7 +18,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         /// <summary>
         /// List of barcode types that support the ZBAR_CFG_MIN_LEN and ZBAR_CFG_MAX_LEN configuration settings.
         /// </summary>
-        private readonly HashSet<BarcodeType> BarcodeTypesSupportingMinMaxLength = [
+        private static readonly HashSet<BarcodeType> BarcodeTypesSupportingMinMaxLength = [
             BarcodeType.I25,
             BarcodeType.CODABAR,
             BarcodeType.CODE_39,
@@ -28,7 +29,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         /// <summary>
         /// List of barcode types that support the ZBAR_CFG_ASCII configuration setting.
         /// </summary>
-        private readonly HashSet<BarcodeType> BarcodeTypesSupportingFullCharacterSet = [
+        private static readonly HashSet<BarcodeType> BarcodeTypesSupportingFullCharacterSet = [
             BarcodeType.EAN_2,
             BarcodeType.EAN_5,
             BarcodeType.EAN_8,
@@ -51,7 +52,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         /// <summary>
         /// List of barcode types that support the ZBAR_CFG_ADD_CHECK and ZBAR_CFG_EMIT_CHECK configuration settings.
         /// </summary>
-        private readonly HashSet<BarcodeType> BarcodeTypesSupportingCheckDigit = [
+        private static readonly HashSet<BarcodeType> BarcodeTypesSupportingCheckDigit = [
             BarcodeType.EAN_2,
             BarcodeType.EAN_5,
             BarcodeType.EAN_8,
@@ -83,9 +84,25 @@ namespace ZBar.Blazor.Tests.ConfigTests
         }
 
         [TestMethod]
+        public void UpdateScanFor()
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.UPC_A | BarcodeType.ISBN_13);
+            var results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.UPC_E);
+
+            Assert.AreEqual(2, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
+            AssertSymbol(symbol, BarcodeType.UPC_A, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_E);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_E, enableFlag: 1, options);
+        }
+
+        [TestMethod]
         public void Export_All()
         {
-            var options = new ScannerOptions() { ScanFor = BarcodeType.ALL };
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL);
             var export = options.Export();
 
             Assert.AreEqual(Enum.GetValues<BarcodeType>().Length, export.Length);
@@ -96,14 +113,14 @@ namespace ZBar.Blazor.Tests.ConfigTests
             foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
             {
                 var symbol = AssertSymbolConfigured(export, barcodeType);
-                AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 1);
+                AssertSymbolAllConfigurationsSet(symbol, barcodeType, enableFlag: 1, options);
             }
         }
 
         [TestMethod]
         public void Export_Specific()
         {
-            var options = new ScannerOptions() { ScanFor = BarcodeType.EAN_13 | BarcodeType.QR_CODE };
+            var options = new ScannerOptions(scanFor: BarcodeType.EAN_13 | BarcodeType.QR_CODE);
             var export = options.Export();
 
             Assert.AreEqual(3, export.Length);
@@ -112,10 +129,10 @@ namespace ZBar.Blazor.Tests.ConfigTests
             AssertConfig(export[0].ConfigOptions[0], CONFIG_ENABLE, 0);
 
             var symbol = AssertSymbolConfigured(export, BarcodeType.EAN_13);
-            AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 1);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.EAN_13, enableFlag: 1, options);
 
             symbol = AssertSymbolConfigured(export, BarcodeType.QR_CODE);
-            AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 1);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.QR_CODE, enableFlag: 1, options);
         }
 
         [TestMethod]
@@ -123,9 +140,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingMinMaxLength)
             {
-                var options = new ScannerOptions()
+                var options = new ScannerOptions(scanFor: barcodeType)
                 {
-                    ScanFor = barcodeType,
                     MinimumValueLength = 50,
                     MaximumValueLength = 200
                 };
@@ -141,9 +157,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideMinimumValueLength()
         {
-            var options = new ScannerOptions()
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
             {
-                ScanFor = BarcodeType.ALL,
                 MinimumValueLength = 50
             };
             options.OverrideMinimumValueLength(BarcodeType.I25 | BarcodeType.CODE_39, 100);
@@ -161,9 +176,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideMaximumValueLength()
         {
-            var options = new ScannerOptions()
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
             {
-                ScanFor = BarcodeType.ALL,
                 MaximumValueLength = 100
             };
             options.OverrideMaximumValueLength(BarcodeType.I25 | BarcodeType.CODE_39, 200);
@@ -188,7 +202,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
 
             foreach (var unsupportedType in unsupportedTypes)
             {
-                var options = new ScannerOptions() { ScanFor = unsupportedType };
+                var options = new ScannerOptions(scanFor: unsupportedType);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, unsupportedType);
@@ -202,9 +216,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
             {
-                var options = new ScannerOptions()
+                var options = new ScannerOptions(scanFor: barcodeType)
                 {
-                    ScanFor = barcodeType,
                     Uncertainty = 2
                 };
 
@@ -218,9 +231,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideUncertainty()
         {
-            var options = new ScannerOptions()
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
             {
-                ScanFor = BarcodeType.ALL,
                 Uncertainty = 0
             };
             options.OverrideUncertainty(BarcodeType.UPC_A | BarcodeType.ISBN_13, 3);
@@ -242,9 +254,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingFullCharacterSet)
             {
-                var options = new ScannerOptions()
+                var options = new ScannerOptions(scanFor: barcodeType)
                 {
-                    ScanFor = barcodeType,
                     EnableFullCharacterSet = enable
                 };
 
@@ -258,9 +269,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideFullCharacterSet()
         {
-            var options = new ScannerOptions()
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
             {
-                ScanFor = BarcodeType.ALL,
                 EnableFullCharacterSet = false
             };
             options.OverrideFullCharacterSet(BarcodeType.EAN_5 | BarcodeType.I25, true);
@@ -285,7 +295,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
 
             foreach (var unsupportedType in unsupportedTypes)
             {
-                var options = new ScannerOptions() { ScanFor = unsupportedType };
+                var options = new ScannerOptions(scanFor: unsupportedType);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, unsupportedType);
@@ -298,9 +308,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
             {
-                var options = new ScannerOptions()
+                var options = new ScannerOptions(scanFor: barcodeType)
                 {
-                    ScanFor = barcodeType,
                     HonorCheckDigit = true
                 };
 
@@ -314,9 +323,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideHonorCheckDigit()
         {
-            var options = new ScannerOptions()
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
             {
-                ScanFor = BarcodeType.ALL,
                 HonorCheckDigit = true
             };
             options.OverrideHonorCheckDigit(BarcodeType.EAN_13 | BarcodeType.ISBN_13, false);
@@ -336,9 +344,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
             {
-                var options = new ScannerOptions()
+                var options = new ScannerOptions(scanFor: barcodeType)
                 {
-                    ScanFor = barcodeType,
                     IncludeCheckDigit = true
                 };
 
@@ -352,9 +359,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideIncludeCheckDigit()
         {
-            var options = new ScannerOptions()
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
             {
-                ScanFor = BarcodeType.ALL,
                 IncludeCheckDigit = true
             };
             options.OverrideIncludeCheckDigit(BarcodeType.EAN_13 | BarcodeType.ISBN_13, false);
@@ -379,7 +385,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
 
             foreach (var unsupportedType in unsupportedTypes)
             {
-                var options = new ScannerOptions() { ScanFor = unsupportedType };
+                var options = new ScannerOptions(scanFor: unsupportedType);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, unsupportedType);
@@ -393,7 +399,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
             return symbol.ConfigOptions.Any(cfg => cfg.ConfigType == optionName);
         }
 
-        private static ScannerOptions.SymbolOption AssertSymbolConfigured(ScannerOptions.SymbolOption[] export, BarcodeType barcodeType)
+        private static ScannerOptions.SymbolOption AssertSymbolConfigured(IList<ScannerOptions.SymbolOption> export, BarcodeType barcodeType)
         {
             var symbol = export.Single(x => x.SymbolType == barcodeType.GetSymbolType());
             Assert.IsNotNull(symbol);
@@ -418,6 +424,44 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             Assert.AreEqual(configType, config.ConfigType);
             Assert.AreEqual(value, config.Value);
+        }
+
+        private static void AssertSymbolAllConfigurationsSet(SymbolOption actual, BarcodeType barcodeType, int enableFlag, ScannerOptions scannerOptions)
+        {
+            Assert.IsNotNull(actual?.ConfigOptions);
+
+            int configLines = 0;
+            AssertConfig(actual.ConfigOptions[configLines], CONFIG_ENABLE, enableFlag);
+            configLines++;
+
+            if (BarcodeTypesSupportingMinMaxLength.Contains(barcodeType))
+            {
+                AssertConfig(actual.ConfigOptions[configLines], CONFIG_MIN_LEN, scannerOptions.MinimumValueLength);
+                configLines++;
+
+                AssertConfig(actual.ConfigOptions[configLines], CONFIG_MAX_LEN, scannerOptions.MaximumValueLength);
+                configLines++;
+            }
+
+            AssertConfig(actual.ConfigOptions[configLines], CONFIG_UNCERTAINTY, scannerOptions.Uncertainty);
+            configLines++;
+
+            if (BarcodeTypesSupportingFullCharacterSet.Contains(barcodeType))
+            {
+                AssertConfig(actual.ConfigOptions[configLines], CONFIG_FULL_ASCII, scannerOptions.EnableFullCharacterSet ? 1 : 0);
+                configLines++;
+            }
+
+            if (BarcodeTypesSupportingCheckDigit.Contains(barcodeType))
+            {
+                AssertConfig(actual.ConfigOptions[configLines], CONFIG_HONOR_CHECK, scannerOptions.HonorCheckDigit ? 1 : 0);
+                configLines++;
+
+                AssertConfig(actual.ConfigOptions[configLines], CONFIG_INCLUDE_CHECK, scannerOptions.IncludeCheckDigit ? 1 : 0);
+                configLines++;
+            }
+
+            AssertSymbol(actual, barcodeType, configLines);
         }
     }
 }

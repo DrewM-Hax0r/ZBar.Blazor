@@ -7,19 +7,7 @@ function createNew(key, scannerOptions, verbose) {
 
     return window.zbar.ZBarScanner.create().then(function (scanner) {
         activeScanners[key] = scanner;
-
-        scannerOptions.forEach(function (symbolOption) {
-            const symbolType = window.zbar.ZBarSymbolType[symbolOption.symbolType];
-
-            symbolOption.configOptions.forEach(function (configOption) {
-                const configType = window.zbar.ZBarConfigType[configOption.configType];
-                const result = scanner.setConfig(symbolType, configType, configOption.value);
-
-                if (verbose) {
-                    console.log('Set ' + window.zbar.ZBarSymbolType[symbolType] + ' w/ ' + window.zbar.ZBarConfigType[configType] + ' to ' + configOption.value + ' with result ' + result);
-                }
-            });
-        });
+        setScannerOptions(scanner, scannerOptions, verbose);
     });
 }
 
@@ -49,6 +37,28 @@ function scan(key, imageData, verbose) {
     } else {
         return Promise.resolve([]);
     }
+}
+
+export function updateScannerConfig(key, scannerOptions, verbose) {
+    const scanner = activeScanners[key];
+    if (scanner) {
+        setScannerOptions(scanner, scannerOptions, verbose)
+    }
+}
+
+function setScannerOptions(scanner, scannerOptions, verbose) {
+    scannerOptions.forEach(function (symbolOption) {
+        const symbolType = window.zbar.ZBarSymbolType[symbolOption.symbolType];
+
+        symbolOption.configOptions.forEach(function (configOption) {
+            const configType = window.zbar.ZBarConfigType[configOption.configType];
+            const result = scanner.setConfig(symbolType, configType, configOption.value);
+
+            if (verbose) {
+                console.log('Set ' + window.zbar.ZBarSymbolType[symbolType] + ' w/ ' + window.zbar.ZBarConfigType[configType] + ' to ' + configOption.value + ' with result ' + result);
+            }
+        });
+    });
 }
 
 export default { createNew, destroy, scan };

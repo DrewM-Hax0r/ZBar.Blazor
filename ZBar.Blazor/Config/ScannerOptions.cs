@@ -78,14 +78,41 @@
             BarcodeType.CODE_128
         ];
 
-        public bool AutoScan { get; set; } = true;
-        public BarcodeType ScanFor { get; set; } = BarcodeType.ALL;
+        public BarcodeType ScanFor { get; private set; }
         public int MinimumValueLength { get; set; } = 0;
         public int MaximumValueLength { get; set; } = 0;
         public int Uncertainty { get; set; } = 0;
         public bool EnableFullCharacterSet { get; set; } = true;
         public bool HonorCheckDigit { get; set; } = true;
         public bool IncludeCheckDigit { get; set; } = true;
+
+        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL)
+        {
+            ScanFor = scanFor;
+        }
+
+        /// <summary>
+        /// Updates the current value of ScanFor.
+        /// </summary>
+        /// <returns>
+        /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
+        /// </returns>
+        public IList<SymbolOption> UpdateScanFor(BarcodeType newBarcodeType)
+        {
+            var options = new List<SymbolOption>();
+
+            foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
+            {
+                if (ScanFor.HasFlag(barcodeType) && !newBarcodeType.HasFlag(barcodeType))
+                    options.Add(CreateSymbolOption(barcodeType, CONFIG_ENABLE, 0));
+                else if (!ScanFor.HasFlag(barcodeType) && newBarcodeType.HasFlag(barcodeType))
+                    // Ensure configuration is up to date when enabling
+                    options.Add(CreateSymbolOptionWithCurrentConfig(barcodeType));
+            }
+
+            ScanFor = newBarcodeType;
+            return options;
+        }
 
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
         {
@@ -134,18 +161,7 @@
             foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
             {
                 if (ScanFor.HasFlag(barcodeType))
-                {
-                    options.Add(new() {
-                        SymbolType = barcodeType.GetSymbolType(),
-                        ConfigOptions = [
-                            new() { ConfigType = CONFIG_ENABLE, Value = 1 },
-                            .. ConfigureMinMaxValueLength(barcodeType),
-                            .. ConfigureUncertainty(barcodeType),
-                            .. ConfigureEnableFullCharacterSet(barcodeType),
-                            .. ConfigureCheckDigit(barcodeType)
-                        ]
-                    });
-                }
+                    options.Add(CreateSymbolOptionWithCurrentConfig(barcodeType));
             }
 
             return [.. options];
@@ -218,10 +234,36 @@
             return successful;
         }
 
+        private SymbolOption CreateSymbolOptionWithCurrentConfig(BarcodeType barcodeType)
+        {
+            return new()
+            {
+                SymbolType = barcodeType.GetSymbolType(),
+                ConfigOptions = [
+                    new() { ConfigType = CONFIG_ENABLE, Value = 1 },
+                    .. ConfigureMinMaxValueLength(barcodeType),
+                    .. ConfigureUncertainty(barcodeType),
+                    .. ConfigureEnableFullCharacterSet(barcodeType),
+                    .. ConfigureCheckDigit(barcodeType)
+                ]
+            };
+        }
+
+        private static SymbolOption CreateSymbolOption(BarcodeType barcodeType, string configType, int value)
+        {
+            return new()
+            {
+                SymbolType = barcodeType.GetSymbolType(),
+                ConfigOptions = [
+                    new() { ConfigType = CONFIG_ENABLE, Value = 0 }
+                ]
+            };
+        }
+
         public record class SymbolOption
         {
             public string SymbolType { get; init; }
-            public ConfigOption[] ConfigOptions { get; set; }
+            public ConfigOption[] ConfigOptions { get; init; }
         }
 
         public record class ConfigOption

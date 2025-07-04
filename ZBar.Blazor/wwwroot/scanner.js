@@ -1,11 +1,11 @@
 const activeScanners = {};
 
-function createNew(key, scannerOptions, callback, verbose) {
+function createNew(key, scannerOptions, verbose) {
     if (activeScanners[key]) {
         throw new Error('A scanner already exists for the given key.');
     }
 
-    window.zbar.ZBarScanner.create().then(function (scanner) {
+    return window.zbar.ZBarScanner.create().then(function (scanner) {
         activeScanners[key] = scanner;
 
         scannerOptions.forEach(function (symbolOption) {
@@ -20,8 +20,6 @@ function createNew(key, scannerOptions, callback, verbose) {
                 }
             });
         });
-
-        callback(scanner);
     });
 }
 
@@ -33,10 +31,10 @@ function destroy(key) {
     }
 }
 
-function scan(key, imageData, callback, verbose) {
+function scan(key, imageData, verbose) {
     const scanner = activeScanners[key];
     if (scanner) {
-        window.zbar.scanImageData(imageData, scanner).then(function (symbols) {
+        return window.zbar.scanImageData(imageData, scanner).then(function (symbols) {
             const results = [];
             symbols.forEach(function (symbol) {
                 symbol.rawValue = symbol.decode();
@@ -46,10 +44,10 @@ function scan(key, imageData, callback, verbose) {
                 }
             });
 
-            if (callback) {
-                callback(results);
-            }
+            return results;
         });
+    } else {
+        return Promise.resolve([]);
     }
 }
 

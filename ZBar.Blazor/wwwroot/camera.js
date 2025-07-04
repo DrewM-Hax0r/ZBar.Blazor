@@ -26,7 +26,7 @@ export function startVideoFeed(dotNetScanner, video, canvas, deviceId, autoScan,
     const constraints = { video: deviceId ? { deviceId: { exact: deviceId } } : true };
 
     navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-        scanner.createNew(video, scannerOptions, function () {
+        scanner.createNew(video, scannerOptions, verbose).then(function () {
             let scannerContext = createScannerContext(deviceId, verbose);
             activeImageScannerContexts[video] = scannerContext;
 
@@ -43,7 +43,7 @@ export function startVideoFeed(dotNetScanner, video, canvas, deviceId, autoScan,
                     enableAutoScan(dotNetScanner, video, canvas, scanInterval);
                 }
             }
-        }, verbose);
+        });
     }).catch(function (error) {
         console.log(error);
         reject(new Error(error));
@@ -120,9 +120,9 @@ function scanVideoFeed(dotNetScanner, video, canvas, canvasContext) {
         canvasContext.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const imageData = canvasContext.getImageData(0, 0, video.videoWidth, video.videoHeight);
 
-        scanner.scan(video, imageData, function (results) {
+        scanner.scan(video, imageData, scannerContext.verbose).then(function (results) {
             dotNetScanner.invokeMethodAsync('OnAfterScan', results);
-        }, scannerContext.verbose);
+        });
     }
 }
 

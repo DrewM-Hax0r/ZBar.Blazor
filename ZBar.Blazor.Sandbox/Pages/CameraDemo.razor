@@ -3,7 +3,12 @@
 
 <PageTitle>ZBarCamera</PageTitle>
 <div class="page">
-    <ZBarCamera @ref="Camera" AutoScan="@AutoScan" ScanInterval="@AutoScanInterval" Verbose="@Verbose" CameraViewType="@CameraView" OnBarcodesFound="OnBarcodesFound" />
+    <ZBarCamera @ref="Camera"
+        AutoScan="@AutoScan" ScanInterval="@AutoScanInterval"
+        ScanFor="@ScanFor"
+        CameraViewType="@CameraView"
+        Verbose="@Verbose"
+        OnBarcodesFound="OnBarcodesFound" />
     <div class="tools">
         <div class="section">
             <button class="btn btn-primary" @onclick="StartVideoFeed">Start</button>
@@ -20,14 +25,19 @@
             </select>
         </div>
         <div class="section">
+            <label class="form-check-label description" style="padding-top: 4px;">Scan For:</label>
+            <span style="padding-top: 4px;">@GetScanForDisplay()</span>
+            <button class="btn btn-secondary btn-sm" style="margin-left: 8px;" @onclick="OpenAdvancedConfig">Advanced Configuration</button>
+        </div>
+        <div class="section">
             <label class="form-check-label description" style="padding-top: 4px;">Auto Scan:</label>
             <div class="radioSelection" style="padding-top: 4px;">
                 <div>
-                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOn" checked="@AutoScan" @onchange="@(() => AutoScan = true)">
+                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOn" checked="@AutoScan" @onchange="@(() => AutoScan = true)" />
                     <label class="form-check-label" for="AutoScanOn">On</label>
                 </div>
                 <div>
-                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOff" checked="@(!AutoScan)" @onchange="@(() => AutoScan = false)">
+                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOff" checked="@(!AutoScan)" @onchange="@(() => AutoScan = false)" />
                     <label class="form-check-label" for="AutoScanOff">Off</label>
                 </div>
             </div>
@@ -98,49 +108,3 @@
         </div>
     </div>
 </div>
-
-@code {
-    private ZBarCamera Camera;
-
-    private bool AutoScan { get; set; } = true;
-    private int AutoScanInterval { get; set; } = 1000;
-    private bool Verbose { get; set; } = true;
-    private CameraViewType CameraView { get; set; } = CameraViewType.VideoFeed;
-
-    private HardwareDevice[] AvailableHardwareDevices;
-    private string SelectedHardwareDeviceId;
-
-    private Barcode[] FoundBarcodes;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-        if (firstRender) {
-            AvailableHardwareDevices = await Camera.GetAvailableDevices();
-            StateHasChanged();
-        }
-    }
-
-    private async Task StartVideoFeed()
-    {
-        if (SelectedHardwareDeviceId != null) {
-            await Camera.StartVideoFeed(SelectedHardwareDeviceId);
-        }
-    }
-
-    private async Task EndVideoFeed()
-    {
-        await Camera.EndVideoFeed();
-    }
-
-    private async Task Scan()
-    {
-        await Camera.Scan();
-    }
-
-    private void OnBarcodesFound(ScanResult scanResult)
-    {
-        FoundBarcodes = scanResult.Barcodes;
-        StateHasChanged();
-    }
-}

@@ -1,0 +1,89 @@
+﻿<h5>Scan For</h5>
+<div class="optionsContainer">
+    <span>
+        <input type="radio" name="allBarcodeTypes" id="BarcodeTypesAll" checked="@AllBarcodeTypes" @onchange="@EnableAllBarcodes" />
+        <label for="BarcodeTypesAll">All Types</label>
+    </span>
+    <span>
+        <input type="radio" name="allBarcodeTypes" id="BarcodeTypesCustom" checked="@(!AllBarcodeTypes)" @onchange="@(() => AllBarcodeTypes = false)" />
+        <label for="BarcodeTypesCustom">Custom</label>
+    </span>
+</div>
+<div class="optionsContainer" style="margin-top: 4px;">
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="upca" id="BarcodeTypeUPCA" disabled="@AllBarcodeTypes" checked="@CustomUPCA" @bind-value="@CustomUPCA" />
+        <label for="BarcodeTypeUPCA">UPC-A</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="upce" disabled="@AllBarcodeTypes" id="BarcodeTypeUPCE" checked="@CustomUPCE" @bind-value="@CustomUPCE" />
+        <label for="BarcodeTypeUPCE">UPC-E</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="isbn13" disabled="@AllBarcodeTypes" id="BarcodeTypeISBN13" checked="@CustomISBN13" @bind-value="@CustomISBN13" />
+        <label for="BarcodeTypeISBN13">ISBN-13</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="isbn10" disabled="@AllBarcodeTypes" id="BarcodeTypeISBN10" checked="@CustomISBN10" @bind-value="@CustomISBN10" />
+        <label for="BarcodeTypeISBN10">ISBN-10</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="ean13" disabled="@AllBarcodeTypes" id="BarcodeTypeEAN13" checked="@CustomEAN13" @bind-value="@CustomEAN13" />
+        <label for="BarcodeTypeEAN13">EAN-13</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="ean8" disabled="@AllBarcodeTypes" id="BarcodeTypeEAN8" checked="@CustomEAN8" @bind-value="@CustomEAN8" />
+        <label for="BarcodeTypeEAN8">EAN-8</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="ean5" disabled="@AllBarcodeTypes" id="BarcodeTypeEAN5" checked="@CustomEAN5" @bind-value="@CustomEAN5" />
+        <label for="BarcodeTypeEAN5">EAN-5</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="ean2" disabled="@AllBarcodeTypes" id="BarcodeTypeEAN2" checked="@CustomEAN2" @bind-value="@CustomEAN2" />
+        <label for="BarcodeTypeEAN2">EAN-2</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="i25" disabled="@AllBarcodeTypes" id="BarcodeTypeI25" checked="@CustomI25" @bind-value="@CustomI25" />
+        <label for="BarcodeTypeI25">I25</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="gs1" disabled="@AllBarcodeTypes" id="BarcodeTypeGS1" checked="@CustomDatabar" @bind-value="@CustomDatabar" />
+        <label for="BarcodeTypeGS1">GS1 DataBar</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="gs1e" disabled="@AllBarcodeTypes" id="BarcodeTypeGS1E" checked="@CustomDatabarExpanded" @bind-value="@CustomDatabarExpanded" />
+        <label for="BarcodeTypeGS1E">GS1 DataBar (Expanded)</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="gs1c" disabled="@AllBarcodeTypes" id="BarcodeTypeGS1C" checked="@CustomComposite" @bind-value="@CustomComposite" />
+        <label for="BarcodeTypeGS1C">GS1 Composite</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="codabar" disabled="@AllBarcodeTypes" id="BarcodeTypeCodabar" checked="@CustomCodabar" @bind-value="@CustomCodabar" />
+        <label for="BarcodeTypeCodabar">Codabar</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="code39" disabled="@AllBarcodeTypes" id="BarcodeTypeCode39" checked="@CustomCode39" @bind-value="@CustomCode39" />
+        <label for="BarcodeTypeCode39">Code-39</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="code93" disabled="@AllBarcodeTypes" id="BarcodeTypeCode93" checked="@CustomCode93" @bind-value="@CustomCode93" />
+        <label for="BarcodeTypeCode93">Code-93</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="code128" disabled="@AllBarcodeTypes" id="BarcodeTypeCode128" checked="@CustomCode128" @bind-value="@CustomCode128" />
+        <label for="BarcodeTypeCode128">Code-128</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="qr" disabled="@AllBarcodeTypes" id="BarcodeTypeQR" checked="@CustomQR" @bind-value="@CustomQR" />
+        <label for="BarcodeTypeQR">QR Code</label>
+    </span>
+    <span class="@(AllBarcodeTypes ? "disabled" : "")">
+        <input type="checkbox" name="qrs" disabled="@AllBarcodeTypes" id="BarcodeTypeQRS" checked="@CustomQRS" @bind-value="@CustomQRS" />
+        <label for="BarcodeTypeQRS">QR Code (Secure)</label>
+    </span>
+</div>
+<div class="footer">
+    <button class="btn btn-primary" @onclick="CloseOk">OK</button>
+    <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</div>

@@ -9,3 +9,10 @@
 .disabled label {
     color: gray;
 }
+
+.footer {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}

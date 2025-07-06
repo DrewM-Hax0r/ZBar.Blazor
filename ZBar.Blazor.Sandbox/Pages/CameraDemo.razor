@@ -41,9 +41,15 @@
                     <label class="form-check-label" for="AutoScanOff">Off</label>
                 </div>
             </div>
-            @if (AutoScan)
+            @if (!AutoScan)
             {
-                <label class="form-check-label description" style="padding-top: 4px; margin-left: 5px">Scan Interval:</label>
+                <button class="btn btn-secondary btn-sm" style="margin-left: 10px;" @onclick="Scan">Scan Now</button>
+            }
+        </div>
+        @if (AutoScan)
+        {
+            <div class="section" style="margin-bottom: 16px;">
+                <label class="form-check-label description" style="padding-top: 4px;">Scan Interval:</label>
                 <div>
                     <input type="range" id="ScanInterval" list="ScanIntervalMarkers" min="100" max="2000" step="100" @bind-value="@AutoScanInterval" />
                     <datalist id="ScanIntervalMarkers">
@@ -52,11 +58,8 @@
                         <option value="2000" label="2s" style="left: 190px;"></option>
                     </datalist>
                 </div>
-            } else
-            {
-                <button class="btn btn-secondary btn-sm" style="margin-left: 10px;" @onclick="Scan">Scan Now</button>
-            }
-        </div>
+            </div>
+        }
         <div class="section">
             <label class="form-check-label description">Verbose:</label>
             <div class="radioSelection">

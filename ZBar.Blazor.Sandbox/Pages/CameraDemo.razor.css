@@ -1,6 +1,6 @@
 ﻿::deep .zBarCamera {
     width: 100%;
-    height: calc(100% - 335px);
+    height: calc(100% - 395px);
 }
 
 h5 {
@@ -23,7 +23,8 @@ h5 {
 
 .section {
     display: flex;
-    gap: 8px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .section.foundBarcodes {
@@ -77,4 +78,18 @@ h5 {
 
 #ScanIntervalMarkers option {
     position: absolute;
+}
+
+@media screen and (width <= 640px) {
+    body * {
+        font-size: 12px;
+    }
+
+    h5 {
+        font-size: 16px;
+    }
+
+    datalist option {
+        font-size: 10px;
+    }
 }

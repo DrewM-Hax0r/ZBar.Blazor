@@ -86,17 +86,76 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void UpdateScanFor()
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.UPC_A | BarcodeType.ISBN_13);
-            var results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.UPC_E);
+            var options = new ScannerOptions(scanFor: BarcodeType.UPC_E | BarcodeType.ISBN_13);
+            var results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.QR_CODE);
+
+            Assert.AreEqual(2, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.UPC_E);
+            AssertSymbol(symbol, BarcodeType.UPC_E, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.QR_CODE);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.QR_CODE, enableFlag: 1, options);
+        }
+
+        /// <summary>
+        /// ZBar requires that EAN13 is enabled if UPCA is enabled (UPCA is a subset of EAN13)
+        /// </summary>
+        [TestMethod]
+        public void UpdateScanFor_UPCA_Requires_EAN13()
+        {
+            // Case 1: Adding UPCA when EAN13 is not already enabled also enables EAN13
+            var options = new ScannerOptions(scanFor: BarcodeType.ISBN_13);
+            var results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.UPC_A);
 
             Assert.AreEqual(2, results.Count);
 
             var symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_A, enableFlag: 1, options);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.EAN_13);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.EAN_13, enableFlag: 1, options);
+
+
+            // Case 2: Removing UPCA when EAN13 is not enabled also removes EAN13
+            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.UPC_A);
+            results = options.UpdateScanFor(BarcodeType.ISBN_13);
+
+            Assert.AreEqual(2, results.Count);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
             AssertSymbol(symbol, BarcodeType.UPC_A, 1);
             AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
 
-            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_E);
-            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_E, enableFlag: 1, options);
+            symbol = AssertSymbolConfigured(results, BarcodeType.EAN_13);
+            AssertSymbol(symbol, BarcodeType.EAN_13, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
+
+
+            // Case 3: Removing UPCA when EAN13 is enabled leaves EAN13 enabled
+            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.UPC_A | BarcodeType.EAN_13);
+            results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.EAN_13);
+
+            Assert.AreEqual(1, results.Count);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
+            AssertSymbol(symbol, BarcodeType.UPC_A, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
+
+
+            // Case 4: Removing EAN13 when UPCA is enabled leaves EAN13 enabled
+            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.UPC_A | BarcodeType.EAN_13);
+            results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.UPC_A);
+
+            Assert.AreEqual(0, results.Count);
+
+            // Case 5: Adding UPCA when EAN13 is enabled does not modify EAN13
+            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.EAN_13);
+            results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.EAN_13 | BarcodeType.UPC_A);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_A, enableFlag: 1, options);
         }
 
         [TestMethod]
@@ -133,6 +192,27 @@ namespace ZBar.Blazor.Tests.ConfigTests
 
             symbol = AssertSymbolConfigured(export, BarcodeType.QR_CODE);
             AssertSymbolAllConfigurationsSet(symbol, BarcodeType.QR_CODE, enableFlag: 1, options);
+        }
+
+        /// <summary>
+        /// ZBar requires that EAN13 is enabled if UPCA is enabled (UPCA is a subset of EAN13)
+        /// </summary>
+        [TestMethod]
+        public void Export_Specific_UPCA_Requires_EAN13()
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.UPC_A);
+            var export = options.Export();
+
+            Assert.AreEqual(3, export.Length);
+
+            AssertSymbol(export[0], null, 1);
+            AssertConfig(export[0].ConfigOptions[0], CONFIG_ENABLE, 0);
+
+            var symbol = AssertSymbolConfigured(export, BarcodeType.UPC_A);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_A, enableFlag: 1, options);
+
+            symbol = AssertSymbolConfigured(export, BarcodeType.EAN_13);
+            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.EAN_13, enableFlag: 1, options);
         }
 
         [TestMethod]

@@ -46,7 +46,6 @@ export function startVideoFeed(dotNetScanner, video, canvas, deviceId, autoScan,
         });
     }).catch(function (error) {
         console.log(error);
-        reject(new Error(error));
     });
 }
 

@@ -1,4 +1,6 @@
-﻿namespace ZBar.Blazor.Config
+﻿using System.Xml;
+
+namespace ZBar.Blazor.Config
 {
     /// <summary>
     /// Encapsulates configuration options for ZBar's ImageScanner class.
@@ -99,16 +101,33 @@
         /// </returns>
         public IList<SymbolOption> UpdateScanFor(BarcodeType newBarcodeType)
         {
-            var options = new List<SymbolOption>();
+            var removedUPCA = false;
+            var addedUPCA = false;
 
+            var options = new List<SymbolOption>();
             foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
             {
                 if (ScanFor.HasFlag(barcodeType) && !newBarcodeType.HasFlag(barcodeType))
-                    options.Add(CreateSymbolOption(barcodeType, CONFIG_ENABLE, 0));
+                {
+                    // Cannot remove EAN13 if UPCA is enabled (UPCA is a subset of EAN13)
+                    var stopEAN13Removal = barcodeType == BarcodeType.EAN_13 && newBarcodeType.HasFlag(BarcodeType.UPC_A);
+
+                    if (!stopEAN13Removal) options.Add(CreateSymbolOption(barcodeType, CONFIG_ENABLE, 0));
+                    if (barcodeType == BarcodeType.UPC_A) removedUPCA = true;
+                }
                 else if (!ScanFor.HasFlag(barcodeType) && newBarcodeType.HasFlag(barcodeType))
+                {
                     // Ensure configuration is up to date when enabling
                     options.Add(CreateSymbolOptionWithCurrentConfig(barcodeType));
+                    if (barcodeType == BarcodeType.UPC_A) addedUPCA = true;
+                }
             }
+
+            // UPCA and EAN13 must stay in sync (UPCA is a subset of EAN13)
+            if (addedUPCA && !ScanFor.HasFlag(BarcodeType.EAN_13) && !newBarcodeType.HasFlag(BarcodeType.EAN_13))
+                options.Add(CreateSymbolOptionWithCurrentConfig(BarcodeType.EAN_13));
+            if (removedUPCA && !ScanFor.HasFlag(BarcodeType.EAN_13) && !newBarcodeType.HasFlag(BarcodeType.EAN_13))
+                options.Add(CreateSymbolOption(BarcodeType.EAN_13, CONFIG_ENABLE, 0));
 
             ScanFor = newBarcodeType;
             return options;
@@ -163,6 +182,11 @@
                 if (ScanFor.HasFlag(barcodeType))
                     options.Add(CreateSymbolOptionWithCurrentConfig(barcodeType));
             }
+
+            // Special handling to enable EAN13 if UPCA is enabled.
+            // UPCA is a subset of EAN13 and ZBar requires EAN13 to be enabled for UPCA scanning to function.
+            if (ScanFor.HasFlag(BarcodeType.UPC_A) && !ScanFor.HasFlag(BarcodeType.EAN_13))
+                options.Add(CreateSymbolOptionWithCurrentConfig(BarcodeType.EAN_13));
 
             return [.. options];
         }

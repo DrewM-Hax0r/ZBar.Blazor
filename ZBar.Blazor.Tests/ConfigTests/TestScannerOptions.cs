@@ -100,32 +100,35 @@ namespace ZBar.Blazor.Tests.ConfigTests
         }
 
         /// <summary>
-        /// ZBar requires that EAN13 is enabled if UPCA is enabled (UPCA is a subset of EAN13)
+        /// ZBar requires that EAN13 is enabled if certain other barcode types are enabled
         /// </summary>
-        [TestMethod]
-        public void UpdateScanFor_UPCA_Requires_EAN13()
+        [DataTestMethod]
+        [DataRow(BarcodeType.UPC_A)]
+        [DataRow(BarcodeType.ISBN_10)]
+        [DataRow(BarcodeType.ISBN_13)]
+        public void UpdateScanFor_Dependents_On_EAN13(BarcodeType dependentBarcodeType)
         {
-            // Case 1: Adding UPCA when EAN13 is not already enabled also enables EAN13
-            var options = new ScannerOptions(scanFor: BarcodeType.ISBN_13);
-            var results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.UPC_A);
+            // Case 1: Adding dependent when EAN13 is not already enabled also enables EAN13
+            var options = new ScannerOptions(scanFor: BarcodeType.I25);
+            var results = options.UpdateScanFor(BarcodeType.I25 | dependentBarcodeType);
 
             Assert.AreEqual(2, results.Count);
 
-            var symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
-            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_A, enableFlag: 1, options);
+            var symbol = AssertSymbolConfigured(results, dependentBarcodeType);
+            AssertSymbolAllConfigurationsSet(symbol, dependentBarcodeType, enableFlag: 1, options);
 
             symbol = AssertSymbolConfigured(results, BarcodeType.EAN_13);
             AssertSymbolAllConfigurationsSet(symbol, BarcodeType.EAN_13, enableFlag: 1, options);
 
 
-            // Case 2: Removing UPCA when EAN13 is not enabled also removes EAN13
-            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.UPC_A);
-            results = options.UpdateScanFor(BarcodeType.ISBN_13);
+            // Case 2: Removing dependent when EAN13 is not enabled also removes EAN13
+            options = new ScannerOptions(scanFor: BarcodeType.I25 | dependentBarcodeType);
+            results = options.UpdateScanFor(BarcodeType.I25);
 
             Assert.AreEqual(2, results.Count);
 
-            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
-            AssertSymbol(symbol, BarcodeType.UPC_A, 1);
+            symbol = AssertSymbolConfigured(results, dependentBarcodeType);
+            AssertSymbol(symbol, dependentBarcodeType, 1);
             AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
 
             symbol = AssertSymbolConfigured(results, BarcodeType.EAN_13);
@@ -133,29 +136,29 @@ namespace ZBar.Blazor.Tests.ConfigTests
             AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
 
 
-            // Case 3: Removing UPCA when EAN13 is enabled leaves EAN13 enabled
-            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.UPC_A | BarcodeType.EAN_13);
-            results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.EAN_13);
+            // Case 3: Removing dependent when EAN13 is enabled leaves EAN13 enabled
+            options = new ScannerOptions(scanFor: BarcodeType.I25 | dependentBarcodeType | BarcodeType.EAN_13);
+            results = options.UpdateScanFor(BarcodeType.I25 | BarcodeType.EAN_13);
 
             Assert.AreEqual(1, results.Count);
 
-            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
-            AssertSymbol(symbol, BarcodeType.UPC_A, 1);
+            symbol = AssertSymbolConfigured(results, dependentBarcodeType);
+            AssertSymbol(symbol, dependentBarcodeType, 1);
             AssertConfig(symbol.ConfigOptions[0], CONFIG_ENABLE, 0);
 
 
-            // Case 4: Removing EAN13 when UPCA is enabled leaves EAN13 enabled
-            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.UPC_A | BarcodeType.EAN_13);
-            results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.UPC_A);
+            // Case 4: Removing EAN13 when dependent is enabled leaves EAN13 enabled
+            options = new ScannerOptions(scanFor: BarcodeType.I25 | dependentBarcodeType | BarcodeType.EAN_13);
+            results = options.UpdateScanFor(BarcodeType.I25 | dependentBarcodeType);
 
             Assert.AreEqual(0, results.Count);
 
-            // Case 5: Adding UPCA when EAN13 is enabled does not modify EAN13
-            options = new ScannerOptions(scanFor: BarcodeType.ISBN_13 | BarcodeType.EAN_13);
-            results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.EAN_13 | BarcodeType.UPC_A);
+            // Case 5: Adding dependent when EAN13 is enabled does not modify EAN13
+            options = new ScannerOptions(scanFor: BarcodeType.I25 | BarcodeType.EAN_13);
+            results = options.UpdateScanFor(BarcodeType.I25 | BarcodeType.EAN_13 | dependentBarcodeType);
 
-            symbol = AssertSymbolConfigured(results, BarcodeType.UPC_A);
-            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_A, enableFlag: 1, options);
+            symbol = AssertSymbolConfigured(results, dependentBarcodeType);
+            AssertSymbolAllConfigurationsSet(symbol, dependentBarcodeType, enableFlag: 1, options);
         }
 
         [TestMethod]
@@ -195,12 +198,15 @@ namespace ZBar.Blazor.Tests.ConfigTests
         }
 
         /// <summary>
-        /// ZBar requires that EAN13 is enabled if UPCA is enabled (UPCA is a subset of EAN13)
+        /// ZBar requires that EAN13 is enabled if certain other barcode types are enabled
         /// </summary>
-        [TestMethod]
-        public void Export_Specific_UPCA_Requires_EAN13()
+        [DataTestMethod]
+        [DataRow(BarcodeType.UPC_A)]
+        [DataRow(BarcodeType.ISBN_10)]
+        [DataRow(BarcodeType.ISBN_13)]
+        public void Export_Specific_Dependents_On_EAN13(BarcodeType dependentBarcodeType)
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.UPC_A);
+            var options = new ScannerOptions(scanFor: dependentBarcodeType);
             var export = options.Export();
 
             Assert.AreEqual(3, export.Length);
@@ -208,8 +214,8 @@ namespace ZBar.Blazor.Tests.ConfigTests
             AssertSymbol(export[0], null, 1);
             AssertConfig(export[0].ConfigOptions[0], CONFIG_ENABLE, 0);
 
-            var symbol = AssertSymbolConfigured(export, BarcodeType.UPC_A);
-            AssertSymbolAllConfigurationsSet(symbol, BarcodeType.UPC_A, enableFlag: 1, options);
+            var symbol = AssertSymbolConfigured(export, dependentBarcodeType);
+            AssertSymbolAllConfigurationsSet(symbol, dependentBarcodeType, enableFlag: 1, options);
 
             symbol = AssertSymbolConfigured(export, BarcodeType.EAN_13);
             AssertSymbolAllConfigurationsSet(symbol, BarcodeType.EAN_13, enableFlag: 1, options);

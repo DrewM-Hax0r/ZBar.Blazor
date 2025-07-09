@@ -33,22 +33,21 @@ namespace ZBar.Blazor.Interop
         [JSInvokable]
         public void OnAfterScan(Symbol[] symbols)
         {
-            if (symbols.Length > 0)
+            var barcodes = GetBarcodes(symbols);
+            if (barcodes.Length > 0)
             {
-                var scanResult = BuildScanResult(symbols);
+                var scanResult = new ScanResult(barcodes);
                 Component.OnBarcodesFound.InvokeAsync(scanResult);
             }
             else Component.OnBarcodesNotFound.InvokeAsync();
         }
 
-        private ScanResult BuildScanResult(Symbol[] symbols)
+        private Barcode[] GetBarcodes(Symbol[] symbols)
         {
-            var barcodes = symbols.Select(s => new Barcode() {
+            return [.. symbols.Select(s => new Barcode() {
                 Type = s.TypeName.ToBarcodeType(),
                 Value = s.RawValue
-            }).ToArray();
-
-            return new ScanResult(barcodes);
+            }).Where(barcode => Component.ScanFor.HasFlag(barcode.Type))];
         }
 
         public async ValueTask DisposeAsync()

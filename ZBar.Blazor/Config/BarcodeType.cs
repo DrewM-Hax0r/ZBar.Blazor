@@ -1,4 +1,6 @@
-﻿namespace ZBar.Blazor.Config
+﻿using System.Collections.ObjectModel;
+
+namespace ZBar.Blazor.Config
 {
     /// <summary>
     /// Barcode types that are supported for image scanning.
@@ -106,6 +108,28 @@
                 BarcodeType.CODE_128 => CODE_128,
                 _ => throw new NotImplementedException($"The symbol type for {type} is not implemented.")
             };
+        }
+
+        /// <summary>
+        /// ZBar requires that certain barcode types are enabled for other barcode types to be recognized
+        /// </summary>
+        public static readonly IReadOnlyDictionary<BarcodeType, BarcodeType[]> BarcodeDependencies = new ReadOnlyDictionary<BarcodeType, BarcodeType[]>(
+            new Dictionary<BarcodeType, BarcodeType[]>()
+            {
+                {
+                    BarcodeType.EAN_13, [
+                        BarcodeType.UPC_A,
+                        BarcodeType.ISBN_10,
+                        BarcodeType.ISBN_13
+                    ]
+                }
+            }
+        );
+
+        public static bool HasDependenciesOn(this BarcodeType scanFor, BarcodeType dependency)
+        {
+            return BarcodeDependencies.ContainsKey(dependency) &&
+                BarcodeDependencies[dependency].Any(barcode => scanFor.HasFlag(barcode));
         }
     }
 }

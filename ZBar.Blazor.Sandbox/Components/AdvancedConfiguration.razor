@@ -55,14 +55,6 @@
         <label for="BarcodeTypeGS1E">GS1 DataBar (Expanded)</label>
     </span>
     <span class="@(AllBarcodeTypes ? "disabled" : "")">
-        <input type="checkbox" name="gs1c" disabled="@AllBarcodeTypes" id="BarcodeTypeGS1C" checked="@CustomComposite" @bind-value="@CustomComposite" />
-        <label for="BarcodeTypeGS1C">GS1 Composite</label>
-    </span>
-    <span class="@(AllBarcodeTypes ? "disabled" : "")">
-        <input type="checkbox" name="codabar" disabled="@AllBarcodeTypes" id="BarcodeTypeCodabar" checked="@CustomCodabar" @bind-value="@CustomCodabar" />
-        <label for="BarcodeTypeCodabar">Codabar</label>
-    </span>
-    <span class="@(AllBarcodeTypes ? "disabled" : "")">
         <input type="checkbox" name="code39" disabled="@AllBarcodeTypes" id="BarcodeTypeCode39" checked="@CustomCode39" @bind-value="@CustomCode39" />
         <label for="BarcodeTypeCode39">Code-39</label>
     </span>
@@ -77,10 +69,6 @@
     <span class="@(AllBarcodeTypes ? "disabled" : "")">
         <input type="checkbox" name="qr" disabled="@AllBarcodeTypes" id="BarcodeTypeQR" checked="@CustomQR" @bind-value="@CustomQR" />
         <label for="BarcodeTypeQR">QR Code</label>
-    </span>
-    <span class="@(AllBarcodeTypes ? "disabled" : "")">
-        <input type="checkbox" name="qrs" disabled="@AllBarcodeTypes" id="BarcodeTypeQRS" checked="@CustomQRS" @bind-value="@CustomQRS" />
-        <label for="BarcodeTypeQRS">QR Code (Secure)</label>
     </span>
 </div>
 <div class="footer">

@@ -87,13 +87,10 @@ namespace ZBar.Blazor.Sandbox.Pages
             if (ScanFor.HasFlag(BarcodeType.I25)) return "I25";
             if (ScanFor.HasFlag(BarcodeType.DATABAR)) return "GS1 DataBar";
             if (ScanFor.HasFlag(BarcodeType.DATABAR_EXPANDED)) return "GS1 DataBar (Expanded)";
-            if (ScanFor.HasFlag(BarcodeType.COMPOSITE)) return "GS1 Composite";
-            if (ScanFor.HasFlag(BarcodeType.CODABAR)) return "GS1 Codabar";
             if (ScanFor.HasFlag(BarcodeType.CODE_39)) return "Code-39";
             if (ScanFor.HasFlag(BarcodeType.CODE_93)) return "Code-93";
             if (ScanFor.HasFlag(BarcodeType.CODE_128)) return "Code-128";
             if (ScanFor.HasFlag(BarcodeType.QR_CODE)) return "QR Code";
-            if (ScanFor.HasFlag(BarcodeType.QR_CODE_SECURE)) return "QR Code (Secure)";
 
             return "N/A";
         }

@@ -28,7 +28,6 @@ namespace ZBar.Blazor.Config
         /// </summary>
         private readonly HashSet<BarcodeType> BarcodeTypesSupportingMinMaxLength = [
             BarcodeType.I25,
-            BarcodeType.CODABAR,
             BarcodeType.CODE_39,
             BarcodeType.CODE_93,
             BarcodeType.CODE_128
@@ -49,9 +48,7 @@ namespace ZBar.Blazor.Config
             BarcodeType.I25,
             BarcodeType.DATABAR,
             BarcodeType.DATABAR_EXPANDED,
-            BarcodeType.CODABAR,
             BarcodeType.QR_CODE,
-            BarcodeType.QR_CODE_SECURE,
             BarcodeType.CODE_39,
             BarcodeType.CODE_93,
             BarcodeType.CODE_128
@@ -72,9 +69,7 @@ namespace ZBar.Blazor.Config
             BarcodeType.I25,
             BarcodeType.DATABAR,
             BarcodeType.DATABAR_EXPANDED,
-            BarcodeType.CODABAR,
             BarcodeType.QR_CODE,
-            BarcodeType.QR_CODE_SECURE,
             BarcodeType.CODE_39,
             BarcodeType.CODE_93,
             BarcodeType.CODE_128

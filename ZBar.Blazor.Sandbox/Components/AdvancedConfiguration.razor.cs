@@ -23,14 +23,10 @@ namespace ZBar.Blazor.Sandbox.Components
         private bool CustomI25 { get; set; }
         private bool CustomDatabar { get; set; }
         private bool CustomDatabarExpanded { get; set; }
-        private bool CustomComposite { get; set; }
-        private bool CustomCodabar { get; set; }
         private bool CustomCode39 { get; set; }
         private bool CustomCode93 { get; set; }
         private bool CustomCode128 { get; set; }
-
         private bool CustomQR { get; set; }
-        private bool CustomQRS { get; set; }
 
         protected override void OnInitialized()
         {
@@ -50,13 +46,10 @@ namespace ZBar.Blazor.Sandbox.Components
                 CustomI25 = ScanFor.HasFlag(BarcodeType.I25);
                 CustomDatabar = ScanFor.HasFlag(BarcodeType.DATABAR);
                 CustomDatabarExpanded = ScanFor.HasFlag(BarcodeType.DATABAR_EXPANDED);
-                CustomComposite = ScanFor.HasFlag(BarcodeType.COMPOSITE);
-                CustomCodabar = ScanFor.HasFlag(BarcodeType.CODABAR);
                 CustomCode39 = ScanFor.HasFlag(BarcodeType.CODE_39);
                 CustomCode93 = ScanFor.HasFlag(BarcodeType.CODE_93);
                 CustomCode128 = ScanFor.HasFlag(BarcodeType.CODE_128);
                 CustomQR = ScanFor.HasFlag(BarcodeType.QR_CODE);
-                CustomQRS = ScanFor.HasFlag(BarcodeType.QR_CODE_SECURE);
             }
         }
 
@@ -73,13 +66,10 @@ namespace ZBar.Blazor.Sandbox.Components
             CustomI25 = false;
             CustomDatabar = false;
             CustomDatabarExpanded = false;
-            CustomComposite = false;
-            CustomCodabar = false;
             CustomCode39 = false;
             CustomCode93 = false;
             CustomCode128 = false;
             CustomQR = false;
-            CustomQRS = false;
 
             AllBarcodeTypes = true;
         }
@@ -100,13 +90,10 @@ namespace ZBar.Blazor.Sandbox.Components
                 if (CustomI25) scanFor = scanFor | BarcodeType.I25;
                 if (CustomDatabar) scanFor = scanFor | BarcodeType.DATABAR;
                 if (CustomDatabarExpanded) scanFor = scanFor | BarcodeType.DATABAR_EXPANDED;
-                if (CustomComposite) scanFor = scanFor | BarcodeType.COMPOSITE;
-                if (CustomCodabar) scanFor = scanFor | BarcodeType.CODABAR;
                 if (CustomCode39) scanFor = scanFor | BarcodeType.CODE_39;
                 if (CustomCode93) scanFor = scanFor | BarcodeType.CODE_93;
                 if (CustomCode128) scanFor = scanFor | BarcodeType.CODE_128;
                 if (CustomQR) scanFor = scanFor | BarcodeType.QR_CODE;
-                if (CustomQRS) scanFor = scanFor | BarcodeType.QR_CODE_SECURE;
 
                 if (scanFor == 0) scanFor = BarcodeType.ALL;
             }

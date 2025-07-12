@@ -113,7 +113,7 @@ namespace ZBar.Blazor.Config
         /// <summary>
         /// ZBar requires that certain barcode types are enabled for other barcode types to be recognized
         /// </summary>
-        public static readonly IReadOnlyDictionary<BarcodeType, BarcodeType[]> BarcodeDependencies = new ReadOnlyDictionary<BarcodeType, BarcodeType[]>(
+        public static readonly IReadOnlyDictionary<BarcodeType, BarcodeType[]> BarcodeDependents = new ReadOnlyDictionary<BarcodeType, BarcodeType[]>(
             new Dictionary<BarcodeType, BarcodeType[]>()
             {
                 {
@@ -126,10 +126,8 @@ namespace ZBar.Blazor.Config
             }
         );
 
-        public static bool HasDependenciesOn(this BarcodeType scanFor, BarcodeType dependency)
-        {
-            return BarcodeDependencies.ContainsKey(dependency) &&
-                BarcodeDependencies[dependency].Any(barcode => scanFor.HasFlag(barcode));
-        }
+        public static readonly ILookup<BarcodeType, BarcodeType> BarcodeDependencies = BarcodeDependents
+            .SelectMany(x => x.Value.Select(barcodeType => (x.Key, barcodeType)))
+            .ToLookup(x => x.barcodeType, x => x.Key);
     }
 }

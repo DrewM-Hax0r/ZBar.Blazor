@@ -1,4 +1,4 @@
-﻿using System.Xml;
+﻿using static ZBar.Blazor.Config.BarcodeTypeExtensions;
 
 namespace ZBar.Blazor.Config
 {
@@ -80,6 +80,8 @@ namespace ZBar.Blazor.Config
             BarcodeType.CODE_128
         ];
 
+        private BarcodeType EnabledBarcodeTypes;
+
         public BarcodeType ScanFor { get; private set; }
         public int MinimumValueLength { get; set; } = 0;
         public int MaximumValueLength { get; set; } = 0;
@@ -91,6 +93,7 @@ namespace ZBar.Blazor.Config
         public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL)
         {
             ScanFor = scanFor;
+            InitEnabledBarcodeTypes();
         }
 
         /// <summary>
@@ -99,48 +102,25 @@ namespace ZBar.Blazor.Config
         /// <returns>
         /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
         /// </returns>
-        public IList<SymbolOption> UpdateScanFor(BarcodeType newBarcodeType)
+        public IList<SymbolOption> UpdateScanFor(BarcodeType updatedScanFor)
         {
-            var options = new List<SymbolOption>();
-            foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
+            ScanFor = updatedScanFor;
+            if (updatedScanFor == BarcodeType.ALL) return Export();
+
+            var scanForUpdates = new List<SymbolOption>();
+            var scanForBarcodeTypes = new HashSet<BarcodeType>(IndividualBarcodeTypes().Where(barcodeType => updatedScanFor.HasFlag(barcodeType)));
+            foreach (var barcodeType in IndividualBarcodeTypes())
             {
-                if (ScanFor.HasFlag(barcodeType) && !newBarcodeType.HasFlag(barcodeType))
+                if (updatedScanFor.HasFlag(barcodeType) && !EnabledBarcodeTypes.HasFlag(barcodeType))
                 {
-                    // Cannot remove dependency if any dependents are enabled
-                    var stopRemoval = newBarcodeType.HasDependenciesOn(barcodeType);
-                    if (!stopRemoval) options.Add(CreateSymbolOption(barcodeType, CONFIG_ENABLE, 0));
+                    scanForUpdates.AddRange(EnableBarcode(barcodeType));
+                    continue;
                 }
-                else if (!ScanFor.HasFlag(barcodeType) && newBarcodeType.HasFlag(barcodeType))
-                {
-                    // Ensure configuration is up to date when enabling
-                    options.Add(CreateSymbolOptionWithCurrentConfig(barcodeType));
-                }
+
+                scanForUpdates.AddRange(DisableBarcodeIfRequired(barcodeType, scanForBarcodeTypes));
             }
 
-            foreach (var dependency in BarcodeTypeExtensions.BarcodeDependencies)
-            {
-                var dependencyNotAdjusted = !ScanFor.HasFlag(dependency.Key) && !newBarcodeType.HasFlag(dependency.Key);
-
-                foreach (var dependent in dependency.Value)
-                {
-                    // If we added a dependent, add the dependency if needed
-                    var addedDependent = !ScanFor.HasFlag(dependent) && newBarcodeType.HasFlag(dependent);
-                    if (addedDependent && dependencyNotAdjusted)
-                    {
-                        options.Add(CreateSymbolOptionWithCurrentConfig(dependency.Key));
-                        break;
-                    }
-                }
-
-                // If we removed a dependent and no more dependents remain, remove the dependency if needed
-                var removedDependent = dependency.Value.Any(dependent => ScanFor.HasFlag(dependent) && !newBarcodeType.HasFlag(dependent));
-                var noDependentsRemain = dependency.Value.All(dependent => !newBarcodeType.HasFlag(dependent));
-                if (removedDependent && noDependentsRemain && dependencyNotAdjusted)
-                    options.Add(CreateSymbolOption(dependency.Key, CONFIG_ENABLE, 0));
-            }
-
-            ScanFor = newBarcodeType;
-            return options;
+            return scanForUpdates;
         }
 
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
@@ -155,7 +135,7 @@ namespace ZBar.Blazor.Config
 
         public bool OverrideUncertainty(BarcodeType barcodeType, int value)
         {
-            return ApplyOverride(barcodeType, value, new HashSet<BarcodeType>(BarcodeTypeExtensions.IndividualBarcodeTypes()), UncertaintyOverrides);
+            return ApplyOverride(barcodeType, value, [.. IndividualBarcodeTypes()], UncertaintyOverrides);
         }
 
         public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
@@ -187,27 +167,80 @@ namespace ZBar.Blazor.Config
                 new() { SymbolType = SYMBOL_ALL, ConfigOptions = [new() { ConfigType = CONFIG_ENABLE, Value = 0 }] }
             };
 
-            foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
+            foreach (var barcodeType in IndividualBarcodeTypes())
             {
                 if (ScanFor.HasFlag(barcodeType))
                     options.Add(CreateSymbolOptionWithCurrentConfig(barcodeType));
             }
 
+            var dependencyOptions = InitEnabledBarcodeTypes();
+
+            return [.. options, .. dependencyOptions];
+        }
+
+        private IList<SymbolOption> InitEnabledBarcodeTypes()
+        {
             // Special handling to enable dependencies if dependents are enabled
-            foreach (var dependency in BarcodeTypeExtensions.BarcodeDependencies)
+            var results = new List<SymbolOption>();
+            var barcodeTypes = ScanFor;
+
+            foreach (var dependency in BarcodeDependents)
             {
                 foreach (var dependent in dependency.Value)
                 {
                     // If we added a dependent, add the dependency if needed
                     if (ScanFor.HasFlag(dependent) && !ScanFor.HasFlag(dependency.Key))
                     {
-                        options.Add(CreateSymbolOptionWithCurrentConfig(dependency.Key));
+                        barcodeTypes |= dependency.Key;
+                        results.Add(CreateSymbolOptionWithCurrentConfig(dependency.Key));
                         break;
                     }
                 }
             }
 
-            return [.. options];
+            EnabledBarcodeTypes = barcodeTypes;
+            return results;
+        }
+
+        private IList<SymbolOption> EnableBarcode(BarcodeType barcodeType)
+        {
+            var scanForUpdates = new List<SymbolOption>()
+            {
+                CreateSymbolOptionWithCurrentConfig(barcodeType)
+            };
+            EnabledBarcodeTypes |= barcodeType;
+
+            foreach (var dependency in BarcodeDependencies[barcodeType])
+                scanForUpdates.AddRange(EnableDependencyIfRequired(dependency));
+
+            return scanForUpdates;
+        }
+
+        private IList<SymbolOption> EnableDependencyIfRequired(BarcodeType dependency)
+        {
+            return EnabledBarcodeTypes.HasFlag(dependency) ? [] : EnableBarcode(dependency);
+        }
+
+        private IList<SymbolOption> DisableBarcodeIfRequired(BarcodeType barcodeType, HashSet<BarcodeType> scanForBarcodeTypes)
+        {
+            var scanForUpdates = new List<SymbolOption>();
+            if (EnabledBarcodeTypes.HasFlag(barcodeType) && !scanForBarcodeTypes.Contains(barcodeType))
+            {
+                if (!scanForBarcodeTypes.SelectMany(type => BarcodeDependencies[type]).Contains(barcodeType))
+                {
+                    scanForUpdates.Add(CreateSymbolOption(barcodeType, CONFIG_ENABLE, 0));
+                    EnabledBarcodeTypes &= ~barcodeType;
+
+                    if (BarcodeDependents.ContainsKey(barcodeType))
+                    {
+                        foreach (var dependant in BarcodeDependents[barcodeType])
+                        {
+                            scanForUpdates.AddRange(DisableBarcodeIfRequired(dependant, scanForBarcodeTypes));
+                        }
+                    }
+                }
+            }
+            return scanForUpdates;
         }
 
         private ConfigOption[] ConfigureMinMaxValueLength(BarcodeType barcodeType)
@@ -265,7 +298,7 @@ namespace ZBar.Blazor.Config
         private bool ApplyOverride<TValue>(BarcodeType barcodeType, TValue value, HashSet<BarcodeType> supportedBarcodeTypes, IDictionary<BarcodeType, TValue> overrides)
         {
             var successful = true;
-            foreach (var type in BarcodeTypeExtensions.IndividualBarcodeTypes())
+            foreach (var type in IndividualBarcodeTypes())
             {
                 if (barcodeType.HasFlag(type))
                 {

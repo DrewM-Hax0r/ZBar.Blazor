@@ -136,14 +136,14 @@ namespace ZBar.Blazor.Components
                 updatedSymbolOptions.AddRange(ScannerOptions.UpdateScanFor(scanFor));
             }
 
-            if (parameters.TryGetValue<int>(nameof(MinimumValueLength), out var minimumValueLength))
+            if (parameters.TryGetValue<int>(nameof(MinimumValueLength), out var minimumValueLength) && minimumValueLength != MinimumValueLength)
             {
-                ScannerOptions.MinimumValueLength = minimumValueLength;
+                updatedSymbolOptions.AddRange(ScannerOptions.UpdateMinValueLength(minimumValueLength));
             }
 
-            if (parameters.TryGetValue<int>(nameof(MaximumValueLength), out var maximumValueLength))
+            if (parameters.TryGetValue<int>(nameof(MaximumValueLength), out var maximumValueLength) && maximumValueLength != MaximumValueLength)
             {
-                ScannerOptions.MaximumValueLength = maximumValueLength;
+                updatedSymbolOptions.AddRange(ScannerOptions.UpdateMaxValueLength(maximumValueLength));
             }
 
             if (parameters.TryGetValue<int>(nameof(Uncertainty), out var uncertainty))

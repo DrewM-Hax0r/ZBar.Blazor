@@ -14,9 +14,12 @@ namespace ZBar.Blazor.Sandbox.Pages
 
         private ZBarCamera Camera;
 
+        private BarcodeType ScanFor { get; set; } = BarcodeType.UPC_A;
+        private int MinValueLength { get; set; } = 0;
+        private int MaxValueLength { get; set; } = 0;
+
         private bool AutoScan { get; set; } = true;
         private int AutoScanInterval { get; set; } = 1000;
-        private BarcodeType ScanFor { get; set; } = BarcodeType.UPC_A;
         private bool Verbose { get; set; } = true;
         private CameraViewType CameraView { get; set; } = CameraViewType.VideoFeed;
 
@@ -56,7 +59,9 @@ namespace ZBar.Blazor.Sandbox.Pages
         private async Task OpenAdvancedConfig()
         {
             var parameters = new ModalParameters()
-                .Add(nameof(AdvancedConfiguration.ScanFor), ScanFor);
+                .Add(nameof(AdvancedConfiguration.ScanFor), ScanFor)
+                .Add(nameof(AdvancedConfiguration.MinValueLength), MinValueLength)
+                .Add(nameof(AdvancedConfiguration.MaxValueLength), MaxValueLength);
 
             var modal = Modal.Show<AdvancedConfiguration>("Advanced Configuration", parameters);
             var result = await modal.Result;
@@ -64,6 +69,8 @@ namespace ZBar.Blazor.Sandbox.Pages
             if(!result.Cancelled) {
                 var config = result.Data as AdvancedConfiguration.Result;
                 if (config.ScanFor.HasValue) ScanFor = config.ScanFor.Value;
+                if (config.MinValueLength.HasValue) MinValueLength = config.MinValueLength.Value;
+                if (config.MaxValueLength.HasValue) MaxValueLength = config.MaxValueLength.Value;
             }
         }
 

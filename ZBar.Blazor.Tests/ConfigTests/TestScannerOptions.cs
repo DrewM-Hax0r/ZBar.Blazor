@@ -84,6 +84,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
             var options = new ScannerOptions(scanFor: BarcodeType.UPC_E | BarcodeType.ISBN_13);
             var results = options.UpdateScanFor(BarcodeType.ISBN_13 | BarcodeType.QR_CODE);
 
+            Assert.AreEqual(BarcodeType.ISBN_13 | BarcodeType.QR_CODE, options.ScanFor);
             Assert.AreEqual(2, results.Count);
 
             var symbol = AssertSymbolConfigured(results, BarcodeType.UPC_E);
@@ -156,6 +157,58 @@ namespace ZBar.Blazor.Tests.ConfigTests
             AssertSymbolAllConfigurationsSet(symbol, dependentBarcodeType, enableFlag: 1, options);
         }
 
+        [DataTestMethod]
+        [DataRow(5, DisplayName = "Regular Value")]
+        [DataRow(-1, DisplayName = "Validation")]
+        public void UpdateMinValueLength(int value)
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.I25 | BarcodeType.CODE_39 | BarcodeType.EAN_8 | BarcodeType.CODE_128);
+            var results = options.UpdateMinValueLength(value);
+
+            var expectedValue = value < 0 ? 0 : value;
+
+            Assert.AreEqual(expectedValue, options.MinimumValueLength);
+            Assert.AreEqual(3, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.I25);
+            AssertSymbol(symbol, BarcodeType.I25, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_MIN_LEN, expectedValue);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_39);
+            AssertSymbol(symbol, BarcodeType.CODE_39, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_MIN_LEN, expectedValue);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_128);
+            AssertSymbol(symbol, BarcodeType.CODE_128, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_MIN_LEN, expectedValue);
+        }
+
+        [DataTestMethod]
+        [DataRow(5, DisplayName = "Regular Value")]
+        [DataRow(-1, DisplayName = "Validation")]
+        public void UpdateMaxValueLength(int value)
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.I25 | BarcodeType.CODE_39 | BarcodeType.EAN_8 | BarcodeType.CODE_128);
+            var results = options.UpdateMaxValueLength(value);
+
+            var expectedValue = value < 0 ? 0 : value;
+
+            Assert.AreEqual(expectedValue, options.MaximumValueLength);
+            Assert.AreEqual(3, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.I25);
+            AssertSymbol(symbol, BarcodeType.I25, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_MAX_LEN, expectedValue);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_39);
+            AssertSymbol(symbol, BarcodeType.CODE_39, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_MAX_LEN, expectedValue);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_128);
+            AssertSymbol(symbol, BarcodeType.CODE_128, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_MAX_LEN, expectedValue);
+        }
+
         [TestMethod]
         public void Export_All()
         {
@@ -221,12 +274,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingMinMaxLength)
             {
-                var options = new ScannerOptions(scanFor: barcodeType)
-                {
-                    MinimumValueLength = 50,
-                    MaximumValueLength = 200
-                };
-
+                var options = new ScannerOptions(scanFor: barcodeType, minValueLength: 50, maxValueLength: 200);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, barcodeType);
@@ -238,10 +286,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideMinimumValueLength()
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
-            {
-                MinimumValueLength = 50
-            };
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL, minValueLength: 50);
             options.OverrideMinimumValueLength(BarcodeType.I25 | BarcodeType.CODE_39, 100);
 
             var export = options.Export();
@@ -257,10 +302,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideMaximumValueLength()
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
-            {
-                MaximumValueLength = 100
-            };
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL, maxValueLength: 100);
             options.OverrideMaximumValueLength(BarcodeType.I25 | BarcodeType.CODE_39, 200);
 
             var export = options.Export();

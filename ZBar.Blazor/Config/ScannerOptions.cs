@@ -78,17 +78,22 @@ namespace ZBar.Blazor.Config
         private BarcodeType EnabledBarcodeTypes;
 
         public BarcodeType ScanFor { get; private set; }
-        public int MinimumValueLength { get; set; } = 0;
-        public int MaximumValueLength { get; set; } = 0;
+        public int MinimumValueLength { get; private set; }
+        public int MaximumValueLength { get; private set; }
         public int Uncertainty { get; set; } = 0;
         public bool EnableFullCharacterSet { get; set; } = true;
         public bool HonorCheckDigit { get; set; } = true;
         public bool IncludeCheckDigit { get; set; } = true;
 
-        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL)
+        private int ValidateMinMaxValueLength(int value) => value < 0 ? 0 : value;
+
+        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL, int minValueLength = 0, int maxValueLength = 0)
         {
             ScanFor = scanFor;
             InitEnabledBarcodeTypes();
+
+            MinimumValueLength = ValidateMinMaxValueLength(minValueLength);
+            MaximumValueLength = ValidateMinMaxValueLength(maxValueLength);
         }
 
         /// <summary>
@@ -116,6 +121,30 @@ namespace ZBar.Blazor.Config
             }
 
             return scanForUpdates;
+        }
+
+        /// <summary>
+        /// Updates the current value of MinimumValueLength.
+        /// </summary>
+        /// <returns>
+        /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
+        /// </returns>
+        public IList<SymbolOption> UpdateMinValueLength(int value)
+        {
+            MinimumValueLength = ValidateMinMaxValueLength(value);
+            return GetMinMaxValueLengthUpdates(GetMinValueLengthConfig);
+        }
+
+        /// <summary>
+        /// Updates the current value of MaximumValueLength.
+        /// </summary>
+        /// <returns>
+        /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
+        /// </returns>
+        public IList<SymbolOption> UpdateMaxValueLength(int value)
+        {
+            MaximumValueLength = ValidateMinMaxValueLength(value);
+            return GetMinMaxValueLengthUpdates(GetMaxValueLengthConfig);
         }
 
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
@@ -238,18 +267,40 @@ namespace ZBar.Blazor.Config
             return scanForUpdates;
         }
 
+        private IList<SymbolOption> GetMinMaxValueLengthUpdates(Func<BarcodeType, ConfigOption> getConfig)
+        {
+            var updates = new List<SymbolOption>();
+            foreach (var barcodeType in BarcodeTypesSupportingMinMaxLength)
+            {
+                if (EnabledBarcodeTypes.HasFlag(barcodeType))
+                    updates.Add(CreateSymbolOption(barcodeType, getConfig));
+            }
+
+            return updates;
+        }
+
+        private ConfigOption GetMinValueLengthConfig(BarcodeType barcodeType)
+        {
+            return new() {
+                ConfigType = CONFIG_MIN_LEN,
+                Value = MinimumValueLengthOverrides.TryGetValue(barcodeType, out int minValue) ? minValue : MinimumValueLength
+            };
+        }
+
+        private ConfigOption GetMaxValueLengthConfig(BarcodeType barcodeType)
+        {
+            return new() {
+                ConfigType = CONFIG_MAX_LEN,
+                Value = MaximumValueLengthOverrides.TryGetValue(barcodeType, out int maxValue) ? maxValue : MaximumValueLength
+            };
+        }
+
         private ConfigOption[] ConfigureMinMaxValueLength(BarcodeType barcodeType)
         {
             if (!BarcodeTypesSupportingMinMaxLength.Contains(barcodeType)) return [];
             return [
-                new() {
-                    ConfigType = CONFIG_MIN_LEN,
-                    Value = MinimumValueLengthOverrides.TryGetValue(barcodeType, out int minValue) ? minValue : MinimumValueLength
-                },
-                new() {
-                    ConfigType = CONFIG_MAX_LEN,
-                    Value = MaximumValueLengthOverrides.TryGetValue(barcodeType, out int maxValue) ? maxValue : MaximumValueLength
-                }
+                GetMinValueLengthConfig(barcodeType),
+                GetMaxValueLengthConfig(barcodeType)
             ];
         }
 
@@ -328,6 +379,15 @@ namespace ZBar.Blazor.Config
                 ConfigOptions = [
                     new() { ConfigType = CONFIG_ENABLE, Value = 0 }
                 ]
+            };
+        }
+
+        private static SymbolOption CreateSymbolOption(BarcodeType barcodeType, params Func<BarcodeType, ConfigOption>[] configOptions)
+        {
+            return new()
+            {
+                SymbolType = barcodeType.GetSymbolType(),
+                ConfigOptions = [.. configOptions.Select(cfg => cfg(barcodeType))]
             };
         }
 

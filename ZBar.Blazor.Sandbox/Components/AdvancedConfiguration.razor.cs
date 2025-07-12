@@ -10,6 +10,8 @@ namespace ZBar.Blazor.Sandbox.Components
         [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
 
         [Parameter] public BarcodeType ScanFor { get; set; }
+        [Parameter] public int MinValueLength { get; set; }
+        [Parameter] public int MaxValueLength { get; set; }
 
         private bool AllBarcodeTypes { get; set; }
         private bool CustomUPCA { get; set; }
@@ -27,6 +29,9 @@ namespace ZBar.Blazor.Sandbox.Components
         private bool CustomCode93 { get; set; }
         private bool CustomCode128 { get; set; }
         private bool CustomQR { get; set; }
+
+        private int MinValueLengthEdit { get; set; }
+        private int MaxValueLengthEdit { get; set; }
 
         protected override void OnInitialized()
         {
@@ -51,6 +56,9 @@ namespace ZBar.Blazor.Sandbox.Components
                 CustomCode128 = ScanFor.HasFlag(BarcodeType.CODE_128);
                 CustomQR = ScanFor.HasFlag(BarcodeType.QR_CODE);
             }
+
+            MinValueLengthEdit = MinValueLength;
+            MaxValueLengthEdit = MaxValueLength;
         }
 
         private void EnableAllBarcodes()
@@ -99,7 +107,9 @@ namespace ZBar.Blazor.Sandbox.Components
             }
 
             var result = new Result(
-                scanFor != ScanFor ? scanFor : null
+                scanFor != ScanFor ? scanFor : null,
+                MinValueLengthEdit != MinValueLength ? MinValueLengthEdit : null,
+                MaxValueLengthEdit != MaxValueLength ? MaxValueLengthEdit : null
             );
 
             await ModalInstance.CloseAsync(ModalResult.Ok(result));
@@ -110,10 +120,14 @@ namespace ZBar.Blazor.Sandbox.Components
         public record Result
         {
             public BarcodeType? ScanFor { get; set; }
+            public int? MinValueLength { get; set; }
+            public int? MaxValueLength { get; set; }
 
-            public Result(BarcodeType? scanFor)
+            public Result(BarcodeType? scanFor, int? minValueLength, int? maxValueLength)
             {
                 ScanFor = scanFor;
+                MinValueLength = minValueLength;
+                MaxValueLength = maxValueLength;
             }
         }
     }

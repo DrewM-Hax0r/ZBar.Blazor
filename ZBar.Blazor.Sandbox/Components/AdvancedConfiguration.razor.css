@@ -6,8 +6,37 @@
     row-gap: 4px;
 }
 
+.section {
+    margin-bottom: 12px;
+}
+
+.slim {
+    margin: 0;
+}
+
+.subtitle {
+    display: inline-block;
+    font-size: 14px;
+    margin-bottom: .5rem;
+}
+
 .disabled label {
     color: gray;
+}
+
+.fieldGrid {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    grid-gap: 8px;
+    align-items: center;
+}
+
+.fieldGrid label {
+    text-align: right;
+}
+
+.fieldGrid input[type="number"] {
+    width: 75px;
 }
 
 .footer {

@@ -74,14 +74,6 @@
     </div>
 </div>
 <div class="section">
-    <h5 class="slim">Uncertainty</h5>
-    <span class="subtitle">Specifies the number of consecutive scans that must identify a particular barcode value for it to be reported. A value of 0 disables the option.</span>
-    <div class="optionsContainer fieldGrid">
-        <label for="Uncertainty">Uncertainty:</label>
-        <input type="number" id="Uncertainty" name="Uncertainty" min="0" max="@int.MaxValue" @bind-value="@UncertaintyEdit">
-    </div>
-</div>
-<div class="section">
     <h5 class="slim">Barcode Length</h5>
     <span class="subtitle">Specifies length thresholds that scanned barcode values must be within to be reported. A value of 0 disables the threshold. Only applies to barcodes with variable lengths.</span>
     <div class="optionsContainer fieldGrid">

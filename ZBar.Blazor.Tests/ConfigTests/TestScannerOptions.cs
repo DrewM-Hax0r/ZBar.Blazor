@@ -209,28 +209,6 @@ namespace ZBar.Blazor.Tests.ConfigTests
             AssertConfig(symbol.ConfigOptions[0], CONFIG_MAX_LEN, expectedValue);
         }
 
-        [DataTestMethod]
-        [DataRow(5, DisplayName = "Regular Value")]
-        [DataRow(-1, DisplayName = "Validation")]
-        public void UpdateUncertainty(int value)
-        {
-            var options = new ScannerOptions(scanFor: BarcodeType.I25 | BarcodeType.CODE_39);
-            var results = options.UpdateUncertainty(value);
-
-            var expectedValue = value < 0 ? 0 : value;
-
-            Assert.AreEqual(expectedValue, options.Uncertainty);
-            Assert.AreEqual(2, results.Count);
-
-            var symbol = AssertSymbolConfigured(results, BarcodeType.I25);
-            AssertSymbol(symbol, BarcodeType.I25, 1);
-            AssertConfig(symbol.ConfigOptions[0], CONFIG_UNCERTAINTY, expectedValue);
-
-            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_39);
-            AssertSymbol(symbol, BarcodeType.CODE_39, 1);
-            AssertConfig(symbol.ConfigOptions[0], CONFIG_UNCERTAINTY, expectedValue);
-        }
-
         [TestMethod]
         public void Export_All()
         {
@@ -361,27 +339,11 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
             {
-                var options = new ScannerOptions(scanFor: barcodeType, uncertainty: 2);
+                var options = new ScannerOptions(scanFor: barcodeType);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, barcodeType);
-                AssertConfigValue(symbol, CONFIG_UNCERTAINTY, 2);
-            }
-        }
-
-        [TestMethod]
-        public void Export_OverrideUncertainty()
-        {
-            var options = new ScannerOptions(scanFor: BarcodeType.ALL, uncertainty: 0);
-            options.OverrideUncertainty(BarcodeType.UPC_A | BarcodeType.ISBN_13, 3);
-
-            var export = options.Export();
-
-            foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
-            {
-                var symbol = AssertSymbolConfigured(export, barcodeType);
-                var overridden = barcodeType == BarcodeType.UPC_A || barcodeType == BarcodeType.ISBN_13;
-                AssertConfigValue(symbol, CONFIG_UNCERTAINTY, overridden ? 3 : 0);
+                AssertConfigValue(symbol, CONFIG_UNCERTAINTY, 0);
             }
         }
 
@@ -581,7 +543,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
                 configLines++;
             }
 
-            AssertConfig(actual.ConfigOptions[configLines], CONFIG_UNCERTAINTY, scannerOptions.Uncertainty);
+            AssertConfig(actual.ConfigOptions[configLines], CONFIG_UNCERTAINTY, 0);
             configLines++;
 
             if (BarcodeTypesSupportingFullCharacterSet.Contains(barcodeType))

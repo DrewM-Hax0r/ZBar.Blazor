@@ -18,7 +18,6 @@ namespace ZBar.Blazor.Config
 
         private readonly Dictionary<BarcodeType, int> MinimumValueLengthOverrides = new();
         private readonly Dictionary<BarcodeType, int> MaximumValueLengthOverrides = new();
-        private readonly Dictionary<BarcodeType, int> UncertaintyOverrides = new();
         private readonly Dictionary<BarcodeType, bool> EnableFullCharacterSetOverrides = new();
         private readonly Dictionary<BarcodeType, bool> HonorCheckDigitOverrides = new();
         private readonly Dictionary<BarcodeType, bool> IncludeCheckDigitOverrides = new();
@@ -80,21 +79,19 @@ namespace ZBar.Blazor.Config
         public BarcodeType ScanFor { get; private set; }
         public int MinimumValueLength { get; private set; }
         public int MaximumValueLength { get; private set; }
-        public int Uncertainty { get; private set; }
         public bool EnableFullCharacterSet { get; set; } = true;
         public bool HonorCheckDigit { get; set; } = true;
         public bool IncludeCheckDigit { get; set; } = true;
 
         private int ValidatePositiveInt(int value) => value < 0 ? 0 : value;
 
-        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL, int minValueLength = 0, int maxValueLength = 0, int uncertainty = 0)
+        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL, int minValueLength = 0, int maxValueLength = 0)
         {
             ScanFor = scanFor;
             InitEnabledBarcodeTypes();
 
             MinimumValueLength = ValidatePositiveInt(minValueLength);
             MaximumValueLength = ValidatePositiveInt(maxValueLength);
-            Uncertainty = ValidatePositiveInt(uncertainty);
         }
 
         /// <summary>
@@ -148,18 +145,6 @@ namespace ZBar.Blazor.Config
             return GetSymbolUpdates(BarcodeTypesSupportingMinMaxLength, GetMaxValueLengthConfig);
         }
 
-        /// <summary>
-        /// Updates the current value of Uncertainty.
-        /// </summary>
-        /// <returns>
-        /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
-        /// </returns>
-        public IList<SymbolOption> UpdateUncertainty(int value)
-        {
-            Uncertainty = ValidatePositiveInt(value);
-            return GetSymbolUpdates(IndividualBarcodeTypes(), GetUncertaintyConfig);
-        }
-
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
         {
             return ApplyOverride(barcodeType, value, BarcodeTypesSupportingMinMaxLength, MinimumValueLengthOverrides);
@@ -168,11 +153,6 @@ namespace ZBar.Blazor.Config
         public bool OverrideMaximumValueLength(BarcodeType barcodeType, int value)
         {
             return ApplyOverride(barcodeType, value, BarcodeTypesSupportingMinMaxLength, MaximumValueLengthOverrides);
-        }
-
-        public bool OverrideUncertainty(BarcodeType barcodeType, int value)
-        {
-            return ApplyOverride(barcodeType, value, [.. IndividualBarcodeTypes()], UncertaintyOverrides);
         }
 
         public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
@@ -312,7 +292,7 @@ namespace ZBar.Blazor.Config
         {
             return new() {
                 ConfigType = CONFIG_UNCERTAINTY,
-                Value = UncertaintyOverrides.TryGetValue(barcodeType, out int uncertainty) ? uncertainty : Uncertainty
+                Value = 0
             };
         }
 
@@ -375,9 +355,9 @@ namespace ZBar.Blazor.Config
                 ConfigOptions = [
                     new() { ConfigType = CONFIG_ENABLE, Value = 1 },
                     .. ConfigureMinMaxValueLength(barcodeType),
-                    GetUncertaintyConfig(barcodeType),
                     .. ConfigureEnableFullCharacterSet(barcodeType),
-                    .. ConfigureCheckDigit(barcodeType)
+                    .. ConfigureCheckDigit(barcodeType),
+                    GetUncertaintyConfig(barcodeType)
                 ]
             };
         }

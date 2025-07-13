@@ -246,6 +246,24 @@ namespace ZBar.Blazor.Tests.ConfigTests
         }
 
         [TestMethod]
+        public void UpdateEnableFullCharacterSet()
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.DATABAR | BarcodeType.QR_CODE, enableFullCharacterSet: true);
+            var results = options.UpdateEnableFullCharacterSet(false);
+
+            Assert.IsFalse(options.EnableFullCharacterSet);
+            Assert.AreEqual(2, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.DATABAR);
+            AssertSymbol(symbol, BarcodeType.DATABAR, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_FULL_ASCII, 0);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.QR_CODE);
+            AssertSymbol(symbol, BarcodeType.QR_CODE, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_FULL_ASCII, 0);
+        }
+
+        [TestMethod]
         public void Export_All()
         {
             var options = new ScannerOptions(scanFor: BarcodeType.ALL);
@@ -390,11 +408,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingFullCharacterSet)
             {
-                var options = new ScannerOptions(scanFor: barcodeType)
-                {
-                    EnableFullCharacterSet = enable
-                };
-
+                var options = new ScannerOptions(scanFor: barcodeType, enableFullCharacterSet: enable);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, barcodeType);
@@ -405,10 +419,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideFullCharacterSet()
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
-            {
-                EnableFullCharacterSet = false
-            };
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL, enableFullCharacterSet: false);
             options.OverrideFullCharacterSet(BarcodeType.EAN_5 | BarcodeType.I25, true);
 
             var export = options.Export();

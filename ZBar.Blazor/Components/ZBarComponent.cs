@@ -146,9 +146,9 @@ namespace ZBar.Blazor.Components
                 updatedSymbolOptions.AddRange(ScannerOptions.UpdateIncludeCheckDigit(includeCheckDigit));
             }
 
-            if (parameters.TryGetValue<bool>(nameof(EnableFullCharacterSet), out var enableFullCharacterSet))
+            if (parameters.TryGetValue<bool>(nameof(EnableFullCharacterSet), out var enableFullCharacterSet) && enableFullCharacterSet != EnableFullCharacterSet)
             {
-                ScannerOptions.EnableFullCharacterSet = enableFullCharacterSet;
+                updatedSymbolOptions.AddRange(ScannerOptions.UpdateEnableFullCharacterSet(enableFullCharacterSet));
             }
 
             await base.SetParametersAsync(parameters);

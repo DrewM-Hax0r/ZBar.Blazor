@@ -19,6 +19,7 @@ namespace ZBar.Blazor.Sandbox.Pages
         private int MaxValueLength { get; set; } = 0;
         private bool HonorCheckDigit { get; set; } = true;
         private bool IncludeCheckDigit { get; set; } = true;
+        private bool EnableFullCharacterSet { get; set; } = true;
 
         private bool AutoScan { get; set; } = true;
         private int AutoScanInterval { get; set; } = 1000;
@@ -65,7 +66,8 @@ namespace ZBar.Blazor.Sandbox.Pages
                 .Add(nameof(AdvancedConfiguration.MinValueLength), MinValueLength)
                 .Add(nameof(AdvancedConfiguration.MaxValueLength), MaxValueLength)
                 .Add(nameof(AdvancedConfiguration.HonorCheckDigit), HonorCheckDigit)
-                .Add(nameof(AdvancedConfiguration.IncludeCheckDigit), IncludeCheckDigit);
+                .Add(nameof(AdvancedConfiguration.IncludeCheckDigit), IncludeCheckDigit)
+                .Add(nameof(AdvancedConfiguration.EnableFullCharacterSet), EnableFullCharacterSet);
 
             var modal = Modal.Show<AdvancedConfiguration>("Advanced Configuration", parameters);
             var result = await modal.Result;
@@ -77,6 +79,7 @@ namespace ZBar.Blazor.Sandbox.Pages
                 if (config.MaxValueLength.HasValue) MaxValueLength = config.MaxValueLength.Value;
                 if (config.HonorCheckDigit.HasValue) HonorCheckDigit = config.HonorCheckDigit.Value;
                 if (config.IncludeCheckDigit.HasValue) IncludeCheckDigit = config.IncludeCheckDigit.Value;
+                if (config.EnableFullCharacterSet.HasValue) EnableFullCharacterSet = config.EnableFullCharacterSet.Value;
             }
         }
 

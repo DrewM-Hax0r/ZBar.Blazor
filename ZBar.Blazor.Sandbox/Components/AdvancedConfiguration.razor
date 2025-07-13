@@ -74,23 +74,31 @@
     </div>
 </div>
 <div class="section">
-    <h5 class="slim">Check Digit</h5>
-    <span class="subtitle">Specifies options related to the check digit. Only applies to barcodes that have a check digit.</span>
-    <div class="optionsContainer fieldGrid">
-        <label for="HonorCheckDigit">Validate Check Digit:</label>
-        <input type="checkbox" id="HonorCheckDigit" name="HonorCheckDigit" checked="@HonorCheckDigitEdit" @bind-value="@HonorCheckDigitEdit" />
-        <label for="IncludeCheckDigit">Include In Result:</label>
-        <input type="checkbox" id="IncludeCheckDigit" name="IncludeCheckDigit" checked="@IncludeCheckDigitEdit" @bind-value="@IncludeCheckDigitEdit" />
-    </div>
-</div>
-<div class="section">
     <h5 class="slim">Barcode Length</h5>
     <span class="subtitle">Specifies length thresholds that scanned barcode values must be within to be reported. A value of 0 disables the threshold. Only applies to barcodes with variable lengths.</span>
     <div class="optionsContainer fieldGrid">
-        <label for="MinValueLength">Minimum Barcode Length:</label>
+        <label class="right" for="MinValueLength">Minimum Barcode Length:</label>
         <input type="number" id="MinValueLength" name="MinValueLength" min="0" max="@MaxValueLengthEdit" @bind-value="@MinValueLengthEdit">
-        <label for="MaxValueLength">Maximum Barcode Length:</label>
+        <label class="right" for="MaxValueLength">Maximum Barcode Length:</label>
         <input type="number" id="MaxValueLength" name="MaxValueLength" min="@MinValueLengthEdit" max="@int.MaxValue" @bind-value="@MaxValueLengthEdit">
+    </div>
+</div>
+<div class="section">
+    <h5 class="slim">Check Digit</h5>
+    <span class="subtitle">Specifies options related to the check digit. Only applies to barcodes that have a check digit.</span>
+    <div class="optionsContainer fieldGrid">
+        <input type="checkbox" id="HonorCheckDigit" name="HonorCheckDigit" checked="@HonorCheckDigitEdit" @bind-value="@HonorCheckDigitEdit" />
+        <label for="HonorCheckDigit">Validate Check Digit</label>
+        <input type="checkbox" id="IncludeCheckDigit" name="IncludeCheckDigit" checked="@IncludeCheckDigitEdit" @bind-value="@IncludeCheckDigitEdit" />
+        <label for="IncludeCheckDigit">Include In Result</label>
+    </div>
+</div>
+<div class="section">
+    <h5 class="slim">Character Set</h5>
+    <span class="subtitle">Specifies options related to supported character sets. Only applies to barcodes whose values support special characters.</span>
+    <div class="optionsContainer fieldGrid">
+        <input type="checkbox" id="EnableFullAscii" name="EnableFullAscii" checked="@EnableFullCharacterSetEdit" @bind-value="@EnableFullCharacterSetEdit" />
+        <label for="EnableFullAscii">Enable Full ASCII Character Set</label>
     </div>
 </div>
 <div class="footer">

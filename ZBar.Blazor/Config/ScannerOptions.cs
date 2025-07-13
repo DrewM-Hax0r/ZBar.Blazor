@@ -81,11 +81,11 @@ namespace ZBar.Blazor.Config
         public int MaximumValueLength { get; private set; }
         public bool HonorCheckDigit { get; private set; }
         public bool IncludeCheckDigit { get; private set; }
-        public bool EnableFullCharacterSet { get; set; } = true;
+        public bool EnableFullCharacterSet { get; private set; }
 
         private int ValidatePositiveInt(int value) => value < 0 ? 0 : value;
 
-        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL, int minValueLength = 0, int maxValueLength = 0, bool honorCheckDigit = true, bool includeCheckDigit = true)
+        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL, int minValueLength = 0, int maxValueLength = 0, bool honorCheckDigit = true, bool includeCheckDigit = true, bool enableFullCharacterSet = true)
         {
             ScanFor = scanFor;
             InitEnabledBarcodeTypes();
@@ -94,6 +94,7 @@ namespace ZBar.Blazor.Config
             MaximumValueLength = ValidatePositiveInt(maxValueLength);
             HonorCheckDigit = honorCheckDigit;
             IncludeCheckDigit = includeCheckDigit;
+            EnableFullCharacterSet = enableFullCharacterSet;
         }
 
         /// <summary>
@@ -169,6 +170,18 @@ namespace ZBar.Blazor.Config
         {
             IncludeCheckDigit = value;
             return GetSymbolUpdates(BarcodeTypesSupportingCheckDigit, GetIncludeCheckDigitConfig);
+        }
+
+        /// <summary>
+        /// Updates the current value of EnableFullCharacterSet.
+        /// </summary>
+        /// <returns>
+        /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
+        /// </returns>
+        public IList<SymbolOption> UpdateEnableFullCharacterSet(bool value)
+        {
+            EnableFullCharacterSet = value;
+            return GetSymbolUpdates(BarcodeTypesSupportingFullCharacterSet, GetEnableFullCharacterSetConfig);
         }
 
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
@@ -316,19 +329,28 @@ namespace ZBar.Blazor.Config
 
         private ConfigOption GetHonorCheckDigitConfig(BarcodeType barcodeType)
         {
-            var honorCheckDigit = HonorCheckDigitOverrides.TryGetValue(barcodeType, out bool honorCheck) ? honorCheck : HonorCheckDigit;
+            var enable = HonorCheckDigitOverrides.TryGetValue(barcodeType, out bool honorCheck) ? honorCheck : HonorCheckDigit;
             return new() {
                 ConfigType = CONFIG_HONOR_CHECK,
-                Value = honorCheckDigit ? 1 : 0
+                Value = enable ? 1 : 0
             };
         }
 
         private ConfigOption GetIncludeCheckDigitConfig(BarcodeType barcodeType)
         {
-            var includeCheckDigit = IncludeCheckDigitOverrides.TryGetValue(barcodeType, out bool includeCheck) ? includeCheck : IncludeCheckDigit;
+            var enable = IncludeCheckDigitOverrides.TryGetValue(barcodeType, out bool includeCheck) ? includeCheck : IncludeCheckDigit;
             return new() {
                 ConfigType = CONFIG_INCLUDE_CHECK,
-                Value = includeCheckDigit ? 1 : 0
+                Value = enable ? 1 : 0
+            };
+        }
+
+        private ConfigOption GetEnableFullCharacterSetConfig(BarcodeType barcodeType)
+        {
+            var enable = EnableFullCharacterSetOverrides.TryGetValue(barcodeType, out bool value) ? value : EnableFullCharacterSet;
+            return new() {
+                ConfigType = CONFIG_FULL_ASCII,
+                Value = enable ? 1 : 0
             };
         }
 
@@ -361,11 +383,7 @@ namespace ZBar.Blazor.Config
         private ConfigOption[] ConfigureEnableFullCharacterSet(BarcodeType barcodeType)
         {
             if (!BarcodeTypesSupportingFullCharacterSet.Contains(barcodeType)) return [];
-            var enable = EnableFullCharacterSetOverrides.TryGetValue(barcodeType, out bool value) ? value : EnableFullCharacterSet;
-            return [new() {
-                ConfigType = CONFIG_FULL_ASCII,
-                Value = enable ? 1 : 0
-            }];
+            return [GetEnableFullCharacterSetConfig(barcodeType)];
         }
 
         private bool ApplyOverride<TValue>(BarcodeType barcodeType, TValue value, HashSet<BarcodeType> supportedBarcodeTypes, IDictionary<BarcodeType, TValue> overrides)

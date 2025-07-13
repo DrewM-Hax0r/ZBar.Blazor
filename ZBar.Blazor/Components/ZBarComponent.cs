@@ -168,7 +168,7 @@ namespace ZBar.Blazor.Components
         /// <remarks>
         /// Use the MinimumValueLength property to configure the default for all supported barcode types.
         /// </remarks>
-        public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
+        internal bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
         {
             return ScannerOptions.OverrideMinimumValueLength(barcodeType, value);
         }
@@ -184,7 +184,7 @@ namespace ZBar.Blazor.Components
         /// <remarks>
         /// Use the MaximumValueLength property to configure the default for all supported barcode types.
         /// </remarks>
-        public bool OverrideMaximumValueLength(BarcodeType barcodeType, int value)
+        internal bool OverrideMaximumValueLength(BarcodeType barcodeType, int value)
         {
             return ScannerOptions.OverrideMaximumValueLength(barcodeType, value);
         }
@@ -200,7 +200,7 @@ namespace ZBar.Blazor.Components
         /// <remarks>
         /// Use the EnableFullCharacterSet property to configure the default for all supported barcode types.
         /// </remarks>
-        public bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
+        internal bool OverrideFullCharacterSet(BarcodeType barcodeType, bool value)
         {
             return ScannerOptions.OverrideFullCharacterSet(barcodeType, value);
         }
@@ -216,7 +216,7 @@ namespace ZBar.Blazor.Components
         /// <remarks>
         /// Use the HonorCheckDigit property to configure the default for all supported barcode types.
         /// </remarks>
-        public bool OverrideHonorCheckDigit(BarcodeType barcodeType, bool value)
+        internal bool OverrideHonorCheckDigit(BarcodeType barcodeType, bool value)
         {
             return ScannerOptions.OverrideHonorCheckDigit(barcodeType, value);
         }
@@ -232,7 +232,7 @@ namespace ZBar.Blazor.Components
         /// <remarks>
         /// Use the IncludeCheckDigit property to configure the default for all supported barcode types.
         /// </remarks>
-        public bool OverrideIncludeCheckDigit(BarcodeType barcodeType, bool value)
+        internal bool OverrideIncludeCheckDigit(BarcodeType barcodeType, bool value)
         {
             return ScannerOptions.OverrideIncludeCheckDigit(barcodeType, value);
         }

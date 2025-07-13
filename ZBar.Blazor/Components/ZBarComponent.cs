@@ -146,9 +146,9 @@ namespace ZBar.Blazor.Components
                 updatedSymbolOptions.AddRange(ScannerOptions.UpdateMaxValueLength(maximumValueLength));
             }
 
-            if (parameters.TryGetValue<int>(nameof(Uncertainty), out var uncertainty))
+            if (parameters.TryGetValue<int>(nameof(Uncertainty), out var uncertainty) && uncertainty != Uncertainty)
             {
-                ScannerOptions.Uncertainty = uncertainty;
+                updatedSymbolOptions.AddRange(ScannerOptions.UpdateUncertainty(uncertainty));
             }
 
             if (parameters.TryGetValue<bool>(nameof(EnableFullCharacterSet), out var enableFullCharacterSet))

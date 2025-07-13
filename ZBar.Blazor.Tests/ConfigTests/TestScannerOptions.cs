@@ -209,6 +209,28 @@ namespace ZBar.Blazor.Tests.ConfigTests
             AssertConfig(symbol.ConfigOptions[0], CONFIG_MAX_LEN, expectedValue);
         }
 
+        [DataTestMethod]
+        [DataRow(5, DisplayName = "Regular Value")]
+        [DataRow(-1, DisplayName = "Validation")]
+        public void UpdateUncertainty(int value)
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.I25 | BarcodeType.CODE_39);
+            var results = options.UpdateUncertainty(value);
+
+            var expectedValue = value < 0 ? 0 : value;
+
+            Assert.AreEqual(expectedValue, options.Uncertainty);
+            Assert.AreEqual(2, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.I25);
+            AssertSymbol(symbol, BarcodeType.I25, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_UNCERTAINTY, expectedValue);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_39);
+            AssertSymbol(symbol, BarcodeType.CODE_39, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_UNCERTAINTY, expectedValue);
+        }
+
         [TestMethod]
         public void Export_All()
         {
@@ -339,11 +361,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypeExtensions.IndividualBarcodeTypes())
             {
-                var options = new ScannerOptions(scanFor: barcodeType)
-                {
-                    Uncertainty = 2
-                };
-
+                var options = new ScannerOptions(scanFor: barcodeType, uncertainty: 2);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, barcodeType);
@@ -354,10 +372,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideUncertainty()
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
-            {
-                Uncertainty = 0
-            };
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL, uncertainty: 0);
             options.OverrideUncertainty(BarcodeType.UPC_A | BarcodeType.ISBN_13, 3);
 
             var export = options.Export();

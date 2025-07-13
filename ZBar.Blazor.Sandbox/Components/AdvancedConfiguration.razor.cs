@@ -12,6 +12,7 @@ namespace ZBar.Blazor.Sandbox.Components
         [Parameter] public BarcodeType ScanFor { get; set; }
         [Parameter] public int MinValueLength { get; set; }
         [Parameter] public int MaxValueLength { get; set; }
+        [Parameter] public int Uncertainty { get; set; }
 
         private bool AllBarcodeTypes { get; set; }
         private bool CustomUPCA { get; set; }
@@ -32,6 +33,7 @@ namespace ZBar.Blazor.Sandbox.Components
 
         private int MinValueLengthEdit { get; set; }
         private int MaxValueLengthEdit { get; set; }
+        private int UncertaintyEdit { get; set; }
 
         protected override void OnInitialized()
         {
@@ -59,6 +61,7 @@ namespace ZBar.Blazor.Sandbox.Components
 
             MinValueLengthEdit = MinValueLength;
             MaxValueLengthEdit = MaxValueLength;
+            UncertaintyEdit = Uncertainty;
         }
 
         private void EnableAllBarcodes()
@@ -109,7 +112,8 @@ namespace ZBar.Blazor.Sandbox.Components
             var result = new Result(
                 scanFor != ScanFor ? scanFor : null,
                 MinValueLengthEdit != MinValueLength ? MinValueLengthEdit : null,
-                MaxValueLengthEdit != MaxValueLength ? MaxValueLengthEdit : null
+                MaxValueLengthEdit != MaxValueLength ? MaxValueLengthEdit : null,
+                UncertaintyEdit != Uncertainty ? UncertaintyEdit : null
             );
 
             await ModalInstance.CloseAsync(ModalResult.Ok(result));
@@ -122,12 +126,14 @@ namespace ZBar.Blazor.Sandbox.Components
             public BarcodeType? ScanFor { get; set; }
             public int? MinValueLength { get; set; }
             public int? MaxValueLength { get; set; }
+            public int? Uncertainty { get; set; }
 
-            public Result(BarcodeType? scanFor, int? minValueLength, int? maxValueLength)
+            public Result(BarcodeType? scanFor, int? minValueLength, int? maxValueLength, int? undertainty)
             {
                 ScanFor = scanFor;
                 MinValueLength = minValueLength;
                 MaxValueLength = maxValueLength;
+                Uncertainty = undertainty;
             }
         }
     }

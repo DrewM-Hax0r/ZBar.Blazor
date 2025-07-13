@@ -543,9 +543,6 @@ namespace ZBar.Blazor.Tests.ConfigTests
                 configLines++;
             }
 
-            AssertConfig(actual.ConfigOptions[configLines], CONFIG_UNCERTAINTY, 0);
-            configLines++;
-
             if (BarcodeTypesSupportingFullCharacterSet.Contains(barcodeType))
             {
                 AssertConfig(actual.ConfigOptions[configLines], CONFIG_FULL_ASCII, scannerOptions.EnableFullCharacterSet ? 1 : 0);
@@ -560,6 +557,9 @@ namespace ZBar.Blazor.Tests.ConfigTests
                 AssertConfig(actual.ConfigOptions[configLines], CONFIG_INCLUDE_CHECK, scannerOptions.IncludeCheckDigit ? 1 : 0);
                 configLines++;
             }
+
+            AssertConfig(actual.ConfigOptions[configLines], CONFIG_UNCERTAINTY, 0);
+            configLines++;
 
             AssertSymbol(actual, barcodeType, configLines);
         }

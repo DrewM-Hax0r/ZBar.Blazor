@@ -12,6 +12,8 @@ namespace ZBar.Blazor.Sandbox.Components
         [Parameter] public BarcodeType ScanFor { get; set; }
         [Parameter] public int MinValueLength { get; set; }
         [Parameter] public int MaxValueLength { get; set; }
+        [Parameter] public bool HonorCheckDigit { get; set; }
+        [Parameter] public bool IncludeCheckDigit { get; set; }
 
         private bool AllBarcodeTypes { get; set; }
         private bool CustomUPCA { get; set; }
@@ -32,6 +34,8 @@ namespace ZBar.Blazor.Sandbox.Components
 
         private int MinValueLengthEdit { get; set; }
         private int MaxValueLengthEdit { get; set; }
+        private bool HonorCheckDigitEdit { get; set; }
+        private bool IncludeCheckDigitEdit { get; set; }
 
         protected override void OnInitialized()
         {
@@ -59,6 +63,8 @@ namespace ZBar.Blazor.Sandbox.Components
 
             MinValueLengthEdit = MinValueLength;
             MaxValueLengthEdit = MaxValueLength;
+            HonorCheckDigitEdit = HonorCheckDigit;
+            IncludeCheckDigitEdit = IncludeCheckDigit;
         }
 
         private void EnableAllBarcodes()
@@ -109,7 +115,9 @@ namespace ZBar.Blazor.Sandbox.Components
             var result = new Result(
                 scanFor != ScanFor ? scanFor : null,
                 MinValueLengthEdit != MinValueLength ? MinValueLengthEdit : null,
-                MaxValueLengthEdit != MaxValueLength ? MaxValueLengthEdit : null
+                MaxValueLengthEdit != MaxValueLength ? MaxValueLengthEdit : null,
+                HonorCheckDigitEdit != HonorCheckDigit ? HonorCheckDigitEdit : null,
+                IncludeCheckDigitEdit != IncludeCheckDigit ? IncludeCheckDigitEdit : null
             );
 
             await ModalInstance.CloseAsync(ModalResult.Ok(result));
@@ -122,12 +130,16 @@ namespace ZBar.Blazor.Sandbox.Components
             public BarcodeType? ScanFor { get; set; }
             public int? MinValueLength { get; set; }
             public int? MaxValueLength { get; set; }
+            public bool? HonorCheckDigit { get; set; }
+            public bool? IncludeCheckDigit { get; set; }
 
-            public Result(BarcodeType? scanFor, int? minValueLength, int? maxValueLength)
+            public Result(BarcodeType? scanFor, int? minValueLength, int? maxValueLength, bool? honorCheckDigit, bool? includeCheckDigit)
             {
                 ScanFor = scanFor;
                 MinValueLength = minValueLength;
                 MaxValueLength = maxValueLength;
+                HonorCheckDigit = honorCheckDigit;
+                IncludeCheckDigit = includeCheckDigit;
             }
         }
     }

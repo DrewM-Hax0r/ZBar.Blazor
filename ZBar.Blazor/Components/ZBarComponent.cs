@@ -136,19 +136,19 @@ namespace ZBar.Blazor.Components
                 updatedSymbolOptions.AddRange(ScannerOptions.UpdateMaxValueLength(maximumValueLength));
             }
 
+            if (parameters.TryGetValue<bool>(nameof(HonorCheckDigit), out var honorCheckDigit) && honorCheckDigit != HonorCheckDigit)
+            {
+                updatedSymbolOptions.AddRange(ScannerOptions.UpdateHonorCheckDigit(honorCheckDigit));
+            }
+
+            if (parameters.TryGetValue<bool>(nameof(IncludeCheckDigit), out var includeCheckDigit) && includeCheckDigit != IncludeCheckDigit)
+            {
+                updatedSymbolOptions.AddRange(ScannerOptions.UpdateIncludeCheckDigit(includeCheckDigit));
+            }
+
             if (parameters.TryGetValue<bool>(nameof(EnableFullCharacterSet), out var enableFullCharacterSet))
             {
                 ScannerOptions.EnableFullCharacterSet = enableFullCharacterSet;
-            }
-
-            if (parameters.TryGetValue<bool>(nameof(HonorCheckDigit), out var honorCheckDigit))
-            {
-                ScannerOptions.HonorCheckDigit = honorCheckDigit;
-            }
-
-            if (parameters.TryGetValue<bool>(nameof(IncludeCheckDigit), out var includeCheckDigit))
-            {
-                ScannerOptions.IncludeCheckDigit = includeCheckDigit;
             }
 
             await base.SetParametersAsync(parameters);

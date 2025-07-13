@@ -210,6 +210,42 @@ namespace ZBar.Blazor.Tests.ConfigTests
         }
 
         [TestMethod]
+        public void UpdateHonorCheckDigit()
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.I25 | BarcodeType.CODE_39, honorCheckDigit: true);
+            var results = options.UpdateHonorCheckDigit(false);
+
+            Assert.IsFalse(options.HonorCheckDigit);
+            Assert.AreEqual(2, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.I25);
+            AssertSymbol(symbol, BarcodeType.I25, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_HONOR_CHECK, 0);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_39);
+            AssertSymbol(symbol, BarcodeType.CODE_39, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_HONOR_CHECK, 0);
+        }
+
+        [TestMethod]
+        public void UpdateIncludeCheckDigit()
+        {
+            var options = new ScannerOptions(scanFor: BarcodeType.I25 | BarcodeType.CODE_39, includeCheckDigit: true);
+            var results = options.UpdateIncludeCheckDigit(false);
+
+            Assert.IsFalse(options.IncludeCheckDigit);
+            Assert.AreEqual(2, results.Count);
+
+            var symbol = AssertSymbolConfigured(results, BarcodeType.I25);
+            AssertSymbol(symbol, BarcodeType.I25, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_INCLUDE_CHECK, 0);
+
+            symbol = AssertSymbolConfigured(results, BarcodeType.CODE_39);
+            AssertSymbol(symbol, BarcodeType.CODE_39, 1);
+            AssertConfig(symbol.ConfigOptions[0], CONFIG_INCLUDE_CHECK, 0);
+        }
+
+        [TestMethod]
         public void Export_All()
         {
             var options = new ScannerOptions(scanFor: BarcodeType.ALL);
@@ -408,11 +444,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
             {
-                var options = new ScannerOptions(scanFor: barcodeType)
-                {
-                    HonorCheckDigit = true
-                };
-
+                var options = new ScannerOptions(scanFor: barcodeType, honorCheckDigit: true);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, barcodeType);
@@ -423,10 +455,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideHonorCheckDigit()
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
-            {
-                HonorCheckDigit = true
-            };
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL, honorCheckDigit: true);
             options.OverrideHonorCheckDigit(BarcodeType.EAN_13 | BarcodeType.ISBN_13, false);
 
             var export = options.Export();
@@ -444,11 +473,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         {
             foreach (var barcodeType in BarcodeTypesSupportingCheckDigit)
             {
-                var options = new ScannerOptions(scanFor: barcodeType)
-                {
-                    IncludeCheckDigit = true
-                };
-
+                var options = new ScannerOptions(scanFor: barcodeType, includeCheckDigit: true);
                 var export = options.Export();
 
                 var symbol = AssertSymbolConfigured(export, barcodeType);
@@ -459,10 +484,7 @@ namespace ZBar.Blazor.Tests.ConfigTests
         [TestMethod]
         public void Export_OverrideIncludeCheckDigit()
         {
-            var options = new ScannerOptions(scanFor: BarcodeType.ALL)
-            {
-                IncludeCheckDigit = true
-            };
+            var options = new ScannerOptions(scanFor: BarcodeType.ALL, includeCheckDigit: true);
             options.OverrideIncludeCheckDigit(BarcodeType.EAN_13 | BarcodeType.ISBN_13, false);
 
             var export = options.Export();

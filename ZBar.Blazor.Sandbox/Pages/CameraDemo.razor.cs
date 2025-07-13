@@ -17,6 +17,8 @@ namespace ZBar.Blazor.Sandbox.Pages
         private BarcodeType ScanFor { get; set; } = BarcodeType.UPC_A;
         private int MinValueLength { get; set; } = 0;
         private int MaxValueLength { get; set; } = 0;
+        private bool HonorCheckDigit { get; set; } = true;
+        private bool IncludeCheckDigit { get; set; } = true;
 
         private bool AutoScan { get; set; } = true;
         private int AutoScanInterval { get; set; } = 1000;
@@ -61,7 +63,9 @@ namespace ZBar.Blazor.Sandbox.Pages
             var parameters = new ModalParameters()
                 .Add(nameof(AdvancedConfiguration.ScanFor), ScanFor)
                 .Add(nameof(AdvancedConfiguration.MinValueLength), MinValueLength)
-                .Add(nameof(AdvancedConfiguration.MaxValueLength), MaxValueLength);
+                .Add(nameof(AdvancedConfiguration.MaxValueLength), MaxValueLength)
+                .Add(nameof(AdvancedConfiguration.HonorCheckDigit), HonorCheckDigit)
+                .Add(nameof(AdvancedConfiguration.IncludeCheckDigit), IncludeCheckDigit);
 
             var modal = Modal.Show<AdvancedConfiguration>("Advanced Configuration", parameters);
             var result = await modal.Result;
@@ -71,6 +75,8 @@ namespace ZBar.Blazor.Sandbox.Pages
                 if (config.ScanFor.HasValue) ScanFor = config.ScanFor.Value;
                 if (config.MinValueLength.HasValue) MinValueLength = config.MinValueLength.Value;
                 if (config.MaxValueLength.HasValue) MaxValueLength = config.MaxValueLength.Value;
+                if (config.HonorCheckDigit.HasValue) HonorCheckDigit = config.HonorCheckDigit.Value;
+                if (config.IncludeCheckDigit.HasValue) IncludeCheckDigit = config.IncludeCheckDigit.Value;
             }
         }
 

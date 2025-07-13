@@ -74,6 +74,16 @@
     </div>
 </div>
 <div class="section">
+    <h5 class="slim">Check Digit</h5>
+    <span class="subtitle">Specifies options related to the check digit. Only applies to barcodes that have a check digit.</span>
+    <div class="optionsContainer fieldGrid">
+        <label for="HonorCheckDigit">Validate Check Digit:</label>
+        <input type="checkbox" id="HonorCheckDigit" name="HonorCheckDigit" checked="@HonorCheckDigitEdit" @bind-value="@HonorCheckDigitEdit" />
+        <label for="IncludeCheckDigit">Include In Result:</label>
+        <input type="checkbox" id="IncludeCheckDigit" name="IncludeCheckDigit" checked="@IncludeCheckDigitEdit" @bind-value="@IncludeCheckDigitEdit" />
+    </div>
+</div>
+<div class="section">
     <h5 class="slim">Barcode Length</h5>
     <span class="subtitle">Specifies length thresholds that scanned barcode values must be within to be reported. A value of 0 disables the threshold. Only applies to barcodes with variable lengths.</span>
     <div class="optionsContainer fieldGrid">

@@ -11,10 +11,10 @@ namespace ZBar.Blazor.Config
         private const string CONFIG_ENABLE = "ZBAR_CFG_ENABLE";
         private const string CONFIG_MIN_LEN = "ZBAR_CFG_MIN_LEN";
         private const string CONFIG_MAX_LEN = "ZBAR_CFG_MAX_LEN";
-        private const string CONFIG_UNCERTAINTY = "ZBAR_CFG_UNCERTAINTY";
-        private const string CONFIG_FULL_ASCII = "ZBAR_CFG_ASCII";
         private const string CONFIG_HONOR_CHECK = "ZBAR_CFG_ADD_CHECK";
         private const string CONFIG_INCLUDE_CHECK = "ZBAR_CFG_EMIT_CHECK";
+        private const string CONFIG_FULL_ASCII = "ZBAR_CFG_ASCII";
+        private const string CONFIG_UNCERTAINTY = "ZBAR_CFG_UNCERTAINTY";
 
         private readonly Dictionary<BarcodeType, int> MinimumValueLengthOverrides = new();
         private readonly Dictionary<BarcodeType, int> MaximumValueLengthOverrides = new();
@@ -79,19 +79,21 @@ namespace ZBar.Blazor.Config
         public BarcodeType ScanFor { get; private set; }
         public int MinimumValueLength { get; private set; }
         public int MaximumValueLength { get; private set; }
+        public bool HonorCheckDigit { get; private set; }
+        public bool IncludeCheckDigit { get; private set; }
         public bool EnableFullCharacterSet { get; set; } = true;
-        public bool HonorCheckDigit { get; set; } = true;
-        public bool IncludeCheckDigit { get; set; } = true;
 
         private int ValidatePositiveInt(int value) => value < 0 ? 0 : value;
 
-        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL, int minValueLength = 0, int maxValueLength = 0)
+        public ScannerOptions(BarcodeType scanFor = BarcodeType.ALL, int minValueLength = 0, int maxValueLength = 0, bool honorCheckDigit = true, bool includeCheckDigit = true)
         {
             ScanFor = scanFor;
             InitEnabledBarcodeTypes();
 
             MinimumValueLength = ValidatePositiveInt(minValueLength);
             MaximumValueLength = ValidatePositiveInt(maxValueLength);
+            HonorCheckDigit = honorCheckDigit;
+            IncludeCheckDigit = includeCheckDigit;
         }
 
         /// <summary>
@@ -143,6 +145,30 @@ namespace ZBar.Blazor.Config
         {
             MaximumValueLength = ValidatePositiveInt(value);
             return GetSymbolUpdates(BarcodeTypesSupportingMinMaxLength, GetMaxValueLengthConfig);
+        }
+
+        /// <summary>
+        /// Updates the current value of HonorCheckDigit.
+        /// </summary>
+        /// <returns>
+        /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
+        /// </returns>
+        public IList<SymbolOption> UpdateHonorCheckDigit(bool value)
+        {
+            HonorCheckDigit = value;
+            return GetSymbolUpdates(BarcodeTypesSupportingCheckDigit, GetHonorCheckDigitConfig);
+        }
+
+        /// <summary>
+        /// Updates the current value of IncludeCheckDigit.
+        /// </summary>
+        /// <returns>
+        /// A list of symbol options to provide to ZBar to update it's scanner reflecting any changes made.
+        /// </returns>
+        public IList<SymbolOption> UpdateIncludeCheckDigit(bool value)
+        {
+            IncludeCheckDigit = value;
+            return GetSymbolUpdates(BarcodeTypesSupportingCheckDigit, GetIncludeCheckDigitConfig);
         }
 
         public bool OverrideMinimumValueLength(BarcodeType barcodeType, int value)
@@ -288,6 +314,24 @@ namespace ZBar.Blazor.Config
             };
         }
 
+        private ConfigOption GetHonorCheckDigitConfig(BarcodeType barcodeType)
+        {
+            var honorCheckDigit = HonorCheckDigitOverrides.TryGetValue(barcodeType, out bool honorCheck) ? honorCheck : HonorCheckDigit;
+            return new() {
+                ConfigType = CONFIG_HONOR_CHECK,
+                Value = honorCheckDigit ? 1 : 0
+            };
+        }
+
+        private ConfigOption GetIncludeCheckDigitConfig(BarcodeType barcodeType)
+        {
+            var includeCheckDigit = IncludeCheckDigitOverrides.TryGetValue(barcodeType, out bool includeCheck) ? includeCheck : IncludeCheckDigit;
+            return new() {
+                ConfigType = CONFIG_INCLUDE_CHECK,
+                Value = includeCheckDigit ? 1 : 0
+            };
+        }
+
         private ConfigOption GetUncertaintyConfig(BarcodeType barcodeType)
         {
             return new() {
@@ -305,6 +349,15 @@ namespace ZBar.Blazor.Config
             ];
         }
 
+        private ConfigOption[] ConfigureCheckDigit(BarcodeType barcodeType)
+        {
+            if (!BarcodeTypesSupportingCheckDigit.Contains(barcodeType)) return [];
+            return [
+                GetHonorCheckDigitConfig(barcodeType),
+                GetIncludeCheckDigitConfig(barcodeType)
+            ];
+        }
+
         private ConfigOption[] ConfigureEnableFullCharacterSet(BarcodeType barcodeType)
         {
             if (!BarcodeTypesSupportingFullCharacterSet.Contains(barcodeType)) return [];
@@ -313,23 +366,6 @@ namespace ZBar.Blazor.Config
                 ConfigType = CONFIG_FULL_ASCII,
                 Value = enable ? 1 : 0
             }];
-        }
-
-        private ConfigOption[] ConfigureCheckDigit(BarcodeType barcodeType)
-        {
-            if (!BarcodeTypesSupportingCheckDigit.Contains(barcodeType)) return [];
-            var honorCheckDigit = HonorCheckDigitOverrides.TryGetValue(barcodeType, out bool honorCheck) ? honorCheck : HonorCheckDigit;
-            var includeCheckDigit = IncludeCheckDigitOverrides.TryGetValue(barcodeType, out bool includeCheck) ? includeCheck : IncludeCheckDigit;
-            return [
-                new() {
-                    ConfigType = CONFIG_HONOR_CHECK,
-                    Value = honorCheckDigit ? 1 : 0
-                },
-                new() {
-                    ConfigType = CONFIG_INCLUDE_CHECK,
-                    Value = includeCheckDigit ? 1 : 0
-                }
-            ];
         }
 
         private bool ApplyOverride<TValue>(BarcodeType barcodeType, TValue value, HashSet<BarcodeType> supportedBarcodeTypes, IDictionary<BarcodeType, TValue> overrides)

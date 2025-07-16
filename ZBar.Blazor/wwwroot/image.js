@@ -17,7 +17,7 @@ export async function loadFromStream(dotnetImage, streamWrapper, canvas, scanner
     image.onload = () => {
         URL.revokeObjectURL(imageUrl);
         updateScannerContext(canvas, image, scannerOptions, verbose).then(function () {
-            const canvasContext = canvas.getContext('2d');
+            const canvasContext = getCanvasContext(canvas);
             canvas.width = image.naturalWidth;
             canvas.height = image.naturalHeight;
             canvasContext.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
@@ -29,12 +29,22 @@ export async function loadFromStream(dotnetImage, streamWrapper, canvas, scanner
 export function scanImage(dotNetScanner, canvas) {
     const scannerContext = activeImageScannerContexts[canvas];
     if (scannerContext && scannerContext.image) {
-        const canvasContext = canvas.getContext('2d');
-        const imageData = canvasContext.getImageData(0, 0, image.naturalWidth, image.naturalHeight);
+        const canvasContext = getCanvasContext(canvas);
+        const imageData = canvasContext.getImageData(0, 0, scannerContext.image.naturalWidth, scannerContext.image.naturalHeight);
         scanner.scan(canvas, imageData, scannerContext.verbose).then(function (results) {
             dotNetScanner.invokeMethodAsync('OnAfterScan', results);
         });
     }
+}
+
+export function updateVerbosity(canvas, value) {
+    if (activeImageScannerContexts[canvas]) {
+        activeImageScannerContexts[canvas].verbose = value;
+    }
+}
+
+function getCanvasContext(canvas) {
+    return canvas.getContext('2d', { willReadFrequently: true });
 }
 
 function updateScannerContext(canvas, image, scannerOptions, verbose) {

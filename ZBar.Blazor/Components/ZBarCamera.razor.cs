@@ -90,7 +90,7 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         public async Task StartVideoFeed(string hardwareDeviceId = null)
         {
-            await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, AutoScan, ScanInterval, ScannerOptions, Verbose);
+            await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, AutoScan, ScanInterval, ScannerOptions.Export(), Verbose);
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace ZBar.Blazor.Interop
                 "import", "./_content/ZBar.Blazor/image.js").AsTask());
         }
 
-        public async Task LoadFromStreamAsync(Stream stream, ElementReference canvas, ScannerOptions scannerOptions, bool verbose)
+        public async Task LoadFromStreamAsync(Stream stream, ElementReference canvas, ScannerOptions.SymbolOption[] scannerOptions, bool verbose)
         {
             using var jsStream = new DotNetStreamReference(stream, leaveOpen: true);
             var module = await ModuleTask.Value;
@@ -35,6 +35,12 @@ namespace ZBar.Blazor.Interop
             var module = await ModuleTask.Value;
             await module.InvokeVoidAsync("scanImage", scannerInterop, canvas);
         }
+
+        public async Task UpdateVerbosity(ElementReference canvas, bool value)
+        {
+            var module = await ModuleTask.Value;
+            await module.InvokeVoidAsync("updateVerbosity", canvas, value);
+        }        
 
         [JSInvokable]
         public void OnImageLoadSuccess()

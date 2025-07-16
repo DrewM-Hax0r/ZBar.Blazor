@@ -1,9 +1,85 @@
 ﻿::deep .zBarImage {
     width: 100%;
-    height: calc(100% - 230px);
+    height: calc(100% - 290px);
+}
+
+.section {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .errorText {
     color: red;
     font-style: italic;
+}
+
+.description {
+    font-weight: bold;
+}
+
+.radioSelection {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.section.foundBarcodes {
+    display: flex;
+    flex-direction: column;
+    max-width: 535px;
+}
+
+.barcodes {
+    border: 1px solid black;
+    min-width: 300px;
+    height: 100px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+.barcode {
+    padding: 4px;
+}
+
+.barcode:not(:last-child) {
+    border-bottom: 1px solid gray;
+}
+
+.barcode .type {
+    font-weight: bold;
+}
+
+.barcodes .none {
+    text-align: center;
+    font-style: italic;
+    color: gray;
+}
+
+::deep input::file-selector-button {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    border: 1px solid;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    margin-right: 16px;
+}
+
+::deep input::file-selector-button:hover {
+    color: #fff;
+    background-color: #0b5ed7;
+    border-color: #0a58ca
 }

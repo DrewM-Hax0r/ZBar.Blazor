@@ -38,12 +38,27 @@ namespace ZBar.Blazor.Components
             ImageInterop = new ImageInterop(JsRuntime, this); // TODO: [.NET 10] Switch to constructor injection
         }
 
+        public override async Task SetParametersAsync(ParameterView parameters)
+        {
+            bool? updatedVerbose = null;
+
+            if (parameters.TryGetValue<bool>(nameof(Verbose), out var verbose) && verbose != Verbose)
+            {
+                updatedVerbose = verbose;
+            }
+
+            await base.SetParametersAsync(parameters);
+
+            // Call async methods after all reads to ParameterView have completed to avoid stale ParameterView context
+            await UpdateJsConfiguration(updatedVerbose);
+        }
+
         /// <summary>
         /// Loads image data from a stream and draws it in the canvas.
         /// </summary>
         public async Task LoadFromStreamAsync(Stream stream)
         {
-            await ImageInterop.LoadFromStreamAsync(stream, Canvas, ScannerOptions, Verbose);
+            await ImageInterop.LoadFromStreamAsync(stream, Canvas, ScannerOptions.Export(), Verbose);
         }
 
         /// <summary>
@@ -67,6 +82,14 @@ namespace ZBar.Blazor.Components
             if (ImageViewType == ImageViewType.ImageFeed)
                 return "display: block;";
             else return "display: none;";
+        }
+
+        private async Task UpdateJsConfiguration(bool? verbose)
+        {
+            if (verbose.HasValue)
+            {
+                await ImageInterop.UpdateVerbosity(Canvas, verbose.Value);
+            }
         }
 
         public override void Dispose()

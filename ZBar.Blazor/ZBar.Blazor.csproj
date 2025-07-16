@@ -1,11 +1,30 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	<LangVersion>latest</LangVersion>
+	<Authors>Drew Miller</Authors>
+	<Title>$(AssemblyName)</Title>
+	<Description>Provides barcode scanning functionality for Blazor Web Assembly applications using the open source ZBar library</Description>
+	<PackageVersion>1.0.0</PackageVersion>
+	<Version>$(PackageVersion)</Version>
+	<RepositoryUrl>https://github.com/DrewM-Hax0r/ZBar.Blazor</RepositoryUrl>
+	<PackageIcon>ZBar.Blazor.png</PackageIcon>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\ZBar.Blazor.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />

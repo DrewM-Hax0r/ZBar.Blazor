@@ -3,6 +3,13 @@
 <PageTitle>ZBarImage</PageTitle>
 <div class="page">
     <ZBarImage @ref="Image"
+        ScanFor="@ScanFor"
+        MinimumValueLength="@MinValueLength"
+        MaximumValueLength="@MaxValueLength"
+        HonorCheckDigit="@HonorCheckDigit"
+        IncludeCheckDigit="@IncludeCheckDigit"
+        EnableFullCharacterSet="@EnableFullCharacterSet"
+        ImageViewType="@ImageView"
         Verbose="Verbose"
         OnImageLoadSuccess="ImageLoadSuccess"
         OnImageLoadFailure="ImageLoadFailure"
@@ -17,6 +24,11 @@
             }
         </div>
         <div class="section">
+            <label class="form-check-label description" style="padding-top: 4px;">Scan For:</label>
+            <span style="padding-top: 4px;">@GetScanForDisplay()</span>
+            <button class="btn btn-secondary btn-sm" style="margin-left: 8px;" @onclick="OpenAdvancedConfig">Advanced Configuration</button>
+        </div>
+        <div class="section">
             <button class="btn btn-primary" disabled="@(!ScanEnabled)" onclick="@Scan">Scan</button>
         </div>
         <div class="section">
@@ -29,6 +41,19 @@
                 <div>
                     <input class="form-check-input" type="radio" name="verbose" id="VerboseOff" checked="@(!Verbose)" @onchange="@(() => Verbose = false)">
                     <label class="form-check-label" for="VerboseOff">Off</label>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <label class="form-check-label description">Image View Type:</label>
+            <div class="radioSelection">
+                <div>
+                    <input class="form-check-input" type="radio" name="imageViewType" id="ImageViewTypeImageFeed" checked="@(ImageView == ImageViewType.ImageFeed)" @onchange="@(() => ImageView = ImageViewType.ImageFeed)">
+                    <label class="form-check-label" for="ImageViewTypeImageFeed">Image Feed</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="imageViewType" id="ImageViewTypeNone" checked="@(ImageView == ImageViewType.None)" @onchange="@(() => ImageView = ImageViewType.None)">
+                    <label class="form-check-label" for="ImageViewTypeNone">None</label>
                 </div>
             </div>
         </div>

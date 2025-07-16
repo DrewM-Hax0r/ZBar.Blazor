@@ -3,6 +3,7 @@
 <PageTitle>ZBarImage</PageTitle>
 <div class="page">
     <ZBarImage @ref="Image"
+        AutoScan="@AutoScan"
         ScanFor="@ScanFor"
         MinimumValueLength="@MinValueLength"
         MaximumValueLength="@MaxValueLength"
@@ -29,7 +30,18 @@
             <button class="btn btn-secondary btn-sm" style="margin-left: 8px;" @onclick="OpenAdvancedConfig">Advanced Configuration</button>
         </div>
         <div class="section">
-            <button class="btn btn-primary" disabled="@(!ScanEnabled)" onclick="@Scan">Scan</button>
+            <label class="form-check-label description" style="padding-top: 4px;">Auto Scan:</label>
+            <div class="radioSelection" style="padding-top: 4px;">
+                <div>
+                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOn" checked="@AutoScan" @onchange="@(() => AutoScan = true)" />
+                    <label class="form-check-label" for="AutoScanOn">On</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="autoScan" id="AutoScanOff" checked="@(!AutoScan)" @onchange="@(() => AutoScan = false)" />
+                    <label class="form-check-label" for="AutoScanOff">Off</label>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="margin-left: 10px;" disabled="@(!ScanEnabled)" @onclick="Scan">Scan Now</button>
         </div>
         <div class="section">
             <label class="form-check-label description">Verbose:</label>

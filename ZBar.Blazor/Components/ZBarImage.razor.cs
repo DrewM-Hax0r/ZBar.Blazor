@@ -53,6 +53,12 @@ namespace ZBar.Blazor.Components
             await UpdateJsConfiguration(updatedVerbose);
         }
 
+        internal async Task ImageLoadSuccess()
+        {
+            await OnImageLoadSuccess.InvokeAsync();
+            if (AutoScan) await Scan();
+        }
+
         /// <summary>
         /// Loads image data from a stream and draws it in the canvas.
         /// </summary>

@@ -20,6 +20,7 @@ namespace ZBar.Blazor.Sandbox.Pages
         private bool ImageLoadFailed;
         private bool ScanEnabled;
 
+        private bool AutoScan { get; set; } = true;
         private BarcodeType ScanFor { get; set; } = BarcodeType.UPC_A;
         private int MinValueLength { get; set; } = 0;
         private int MaxValueLength { get; set; } = 0;

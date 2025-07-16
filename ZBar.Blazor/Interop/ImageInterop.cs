@@ -43,9 +43,9 @@ namespace ZBar.Blazor.Interop
         }        
 
         [JSInvokable]
-        public void OnImageLoadSuccess()
+        public async Task OnImageLoadSuccess()
         {
-            Component.OnImageLoadSuccess.InvokeAsync();
+            await Component.ImageLoadSuccess();
         }
 
         [JSInvokable]

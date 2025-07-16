@@ -38,9 +38,21 @@ namespace ZBar.Blazor.Components
             ImageInterop = new ImageInterop(JsRuntime, this); // TODO: [.NET 10] Switch to constructor injection
         }
 
+        /// <summary>
+        /// Loads image data from a stream and draws it in the canvas.
+        /// </summary>
         public async Task LoadFromStreamAsync(Stream stream)
         {
-            await ImageInterop.LoadFromStreamAsync(Canvas, stream);
+            await ImageInterop.LoadFromStreamAsync(stream, Canvas, ScannerOptions, Verbose);
+        }
+
+        /// <summary>
+        /// Performs a single scan on the image currently drawn in the canvas.
+        /// Scan results will be provided to the <see cref="ZBarComponent.OnBarcodesFound" /> and <see cref="ZBarComponent.OnBarcodesNotFound" /> event callbacks.
+        /// </summary>
+        public async Task Scan()
+        {
+            await ImageInterop.ScanImageAsync(ScannerInterop.Interop, Canvas);
         }
 
         private string GetContainerDisplay()

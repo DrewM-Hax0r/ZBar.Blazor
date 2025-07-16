@@ -2,7 +2,7 @@
 
 <PageTitle>ZBarImage</PageTitle>
 <div class="page">
-    <ZBarImage @ref="Image" OnImageLoadSuccess="() => ImageLoadFailed = false" OnImageLoadFailure="() => ImageLoadFailed = true" />
+    <ZBarImage @ref="Image" OnImageLoadSuccess="ImageLoadSuccess" OnImageLoadFailure="ImageLoadFailure" />
     <div class="tools">
         <div>
             <InputFile OnChange="LoadImage" />
@@ -10,6 +10,9 @@
             {
                 <div class="errorText">The provided file could not be interpreted as image data.</div>
             }
+        </div>
+        <div>
+            <button class="btn btn-primary" disabled="@(!ScanEnabled)" onclick="@Scan">Scan</button>
         </div>
     </div>
 </div>

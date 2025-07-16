@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
 using ZBar.Blazor.Components;
+using ZBar.Blazor.Config;
 
 namespace ZBar.Blazor.Interop
 {
@@ -22,11 +23,17 @@ namespace ZBar.Blazor.Interop
                 "import", "./_content/ZBar.Blazor/image.js").AsTask());
         }
 
-        public async Task LoadFromStreamAsync(ElementReference canvas, Stream stream)
+        public async Task LoadFromStreamAsync(Stream stream, ElementReference canvas, ScannerOptions scannerOptions, bool verbose)
         {
             using var jsStream = new DotNetStreamReference(stream, leaveOpen: true);
             var module = await ModuleTask.Value;
-            await module.InvokeVoidAsync("loadFromStream", Interop, canvas, jsStream);
+            await module.InvokeVoidAsync("loadFromStream", Interop, jsStream, canvas, scannerOptions, verbose);
+        }
+
+        public async Task ScanImageAsync(DotNetObjectReference<ScannerInterop> scannerInterop, ElementReference canvas)
+        {
+            var module = await ModuleTask.Value;
+            await module.InvokeVoidAsync("scanImage", scannerInterop, canvas);
         }
 
         [JSInvokable]

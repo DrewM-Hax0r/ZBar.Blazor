@@ -1,7 +1,45 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>ZBar.Blazor</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="content">
+    <h1>ZBar.Blazor</h1>
 
-Welcome to your new app.
+    <p>
+        ZBar.Blazor provides easy to use razor components that allow developers to add fully featured barcode scanning capabilities to their Blazor WASM applications in minutes.
+        This project uses <a href="https://github.com/undecaf/zbar-wasm">zbar-wasm</a> which compiles  <a href="https://github.com/mchehab/zbar">zbar</a> into native web assembly.
+        This allows developers to utalize the client's web browser to efficiently scan image data for barcode information.
+        ZBar.Blazor is simple to use but flexible and powerful, providing access to all of ZBar's features through a Razor/C# API and without the need to write any JavaScript code.
+    </p>
+
+    <div>
+        <span>ZBar.Blazor supports scanning the following types of barcodes:</span>
+        <ul>
+            <li>UPC-A, UPC-E</li>
+            <li>ISBN-13, ISBN-10</li>
+            <li>EAN-13, EAN-8, EAN-5, EAN-2</li>
+            <li>I25</li>
+            <li>GS1 DataBar</li>
+            <li>GS1 DataBar Expanded</li>
+            <li>Code 128, Code 93, Code 39</li>
+            <li>QR Code</li>
+        </ul>
+    </div>
+
+    <div>
+        <h2>ZBarImage</h2>
+        <p>
+            The <a href="image">ZBarImage</a> component scans static image data for barcode information.
+            Image data can be provided from any .NET Stream, fitting comfortably into normal .NET workflows.
+        </p>
+    </div>
+    
+    <div>
+        <h2>ZBarCamera</h2>
+        <p>
+            The <a href="camera">ZBarCamera</a> component scans a video feed for barcode information.
+            The video feed can be streamed from any system device that provides video - physical or virtual.
+            Convienence methods have been provided to query the system for available video devices, no JavaScript required.
+        </p>
+    </div>
+</div>

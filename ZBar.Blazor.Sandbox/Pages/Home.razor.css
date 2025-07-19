@@ -1,0 +1,19 @@
+﻿.content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+h2 {
+    margin-top: 16px;
+    margin-bottom: 12px;
+}
+
+p {
+    margin-bottom: 0;
+}
+
+ul {
+    margin-top: 8px;
+    margin-bottom: 0;
+}

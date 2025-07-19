@@ -1,4 +1,6 @@
 # ZBar.Blazor
+Try the [demo](https://drewm-hax0r.github.io/ZBar.Blazor/) to see what ZBar.Blazor can do!
+
 ZBar.Blazor provides easy to use razor components that allow developers to add fully featured barcode scanning capabilities to their Blazor WASM applications in minutes. This project uses [zbar-wasm](https://github.com/undecaf/zbar-wasm) which compiles [zbar](https://github.com/mchehab/zbar) into native web assembly. This allows developers to utalize the client's web browser to efficiently scan image data for barcode information. ZBar.Blazor is simple to use but flexible and powerful, providing access to all of ZBar's features through a Razor/C# API and without the need to write any JavaScript code.
 
 ## Barcode Support

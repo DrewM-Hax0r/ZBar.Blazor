@@ -46,6 +46,10 @@ jobs:
     
       - name: Change base-tag in index.html
         run: sed -i 's/<base href="\/" \/>/<base href="\/ZBar.Blazor\/" \/>/g' release/wwwroot/index.html   
+
+      # Copy index.html to 404.html to fix issue when refreshing on a page that is not the root URL
+      - name: Server index as 404
+        run: cp release/wwwroot/index.html release/wwwroot/404.html
         
       - name: Setup Pages
         uses: actions/configure-pages@v5

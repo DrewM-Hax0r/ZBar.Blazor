@@ -8,7 +8,7 @@
 	<Authors>Drew Miller</Authors>
 	<Title>$(AssemblyName)</Title>
 	<Description>Provides barcode scanning functionality for Blazor Web Assembly applications using the open source ZBar library</Description>
-	<PackageVersion>1.0.0</PackageVersion>
+	<PackageVersion>1.1.0</PackageVersion>
 	<Version>$(PackageVersion)</Version>
 	<RepositoryUrl>https://github.com/DrewM-Hax0r/ZBar.Blazor</RepositoryUrl>
 	<PackageIcon>ZBar.Blazor.png</PackageIcon>

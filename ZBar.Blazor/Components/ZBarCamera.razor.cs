@@ -29,6 +29,11 @@ namespace ZBar.Blazor.Components
         /// </remarks>
         [Parameter] public CameraViewType CameraViewType { get; set; } = CameraViewType.ScannerFeed;
 
+        /// <summary>
+        /// True if the camera's video feed is currently polling data.
+        /// </summary>
+        public bool IsVideoFeedActive { get; private set; }
+
         private CameraInterop CameraInterop;
         private ElementReference Video;
         private ElementReference Canvas;
@@ -91,6 +96,7 @@ namespace ZBar.Blazor.Components
         public async Task StartVideoFeed(string hardwareDeviceId = null)
         {
             await CameraInterop.StartVideoFeed(ScannerInterop.Interop, Video, Canvas, hardwareDeviceId, AutoScan, ScanInterval, ScannerOptions.Export(), Verbose);
+            IsVideoFeedActive = true;
         }
 
         /// <summary>
@@ -99,6 +105,7 @@ namespace ZBar.Blazor.Components
         public async Task EndVideoFeed()
         {
             await CameraInterop.EndVideoFeed(Video);
+            IsVideoFeedActive = false;
         }
 
         /// <summary>

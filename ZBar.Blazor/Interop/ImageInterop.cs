@@ -30,10 +30,22 @@ namespace ZBar.Blazor.Interop
             await module.InvokeVoidAsync("loadFromStream", Interop, jsStream, canvas, scannerOptions, verbose);
         }
 
+        public async Task LoadFromUrlAsync(string src, ElementReference canvas, ScannerOptions.SymbolOption[] scannerOptions, bool verbose)
+        {
+            var module = await ModuleTask.Value;
+            await module.InvokeVoidAsync("loadFromUrl", Interop, src, canvas, scannerOptions, verbose);
+        }
+
         public async Task ScanImageAsync(DotNetObjectReference<ScannerInterop> scannerInterop, ElementReference canvas)
         {
             var module = await ModuleTask.Value;
             await module.InvokeVoidAsync("scanImage", scannerInterop, canvas);
+        }
+
+        public async Task ClearCanvas(ElementReference canvas)
+        {
+            var module = await ModuleTask.Value;
+            await module.InvokeVoidAsync("clearCanvas", canvas);
         }
 
         public async Task UpdateVerbosity(ElementReference canvas, bool value)

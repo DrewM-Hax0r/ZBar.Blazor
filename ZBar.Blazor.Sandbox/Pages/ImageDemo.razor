@@ -11,17 +11,46 @@
         IncludeCheckDigit="@IncludeCheckDigit"
         EnableFullCharacterSet="@EnableFullCharacterSet"
         ImageViewType="@ImageView"
-        Verbose="Verbose"
+        Verbose="@Verbose"
         OnImageLoadSuccess="ImageLoadSuccess"
         OnImageLoadFailure="ImageLoadFailure"
         OnBarcodesFound="OnBarcodesFound"
-        OnBarcodesNotFound="OnBarcodesNotFound"/>
+        OnBarcodesNotFound="OnBarcodesNotFound"
+        SourceType="@SourceType"
+        Src="@ImageSrc"/>
     <div class="tools">
         <div class="section">
-            <InputFile OnChange="LoadImage" />
-            @if (ImageLoadFailed)
+            <label class="form-check-label description" style="padding-top: 4px;">Image Source:</label>
+            <div class="radioSelection" style="padding-top: 4px;">
+                <div>
+                    <input class="form-check-input" type="radio" name="sourceType" id="SourceFile" checked="@(SourceType == ImageSourceType.Stream)" @onchange="@(() => SourceType = ImageSourceType.Stream)" />
+                    <label class="form-check-label" for="SourceFile">File</label>
+                </div>
+                <div>
+                    <input class="form-check-input" type="radio" name="sourceType" id="SourceUrl" checked="@(SourceType == ImageSourceType.Url)" @onchange="@(() => SourceType = ImageSourceType.Url)" />
+                    <label class="form-check-label" for="SourceUrl">URL</label>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            @if (SourceType == ImageSourceType.Stream)
             {
-                <div class="errorText">The provided file could not be interpreted as image data.</div>
+                <InputFile OnChange="LoadImage" />
+                @if (ImageLoadFailed)
+                {
+                    <div class="errorText">The provided file could not be interpreted as image data.</div>
+                }
+            } else if (SourceType == ImageSourceType.Url)
+            {
+                <div class="urlSection">
+                    <input class="imageUrl" type="text" @bind-Value="ImageSrc" @bind-Value:event="onchange" />
+                    <div class="subnote">Note: CORS policy may prevent loading image data from other domains.</div>
+                    <div class="subnote">Test images for <a href="img/upca.png" target="_blank">UPC-A</a> and <a href="img/isbn13.png" target="_blank">ISBN-13</a> are hosted here.</div>
+                </div>
+                @if (ImageLoadFailed)
+                {
+                    <div class="errorText">The provided URL could not be used to load image data.</div>
+                }
             }
         </div>
         <div class="section">

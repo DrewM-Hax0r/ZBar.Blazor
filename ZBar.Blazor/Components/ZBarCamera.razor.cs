@@ -158,9 +158,9 @@ namespace ZBar.Blazor.Components
 
         public override async ValueTask DisposeAsync()
         {
-            await base.DisposeAsync();
             await this.EndVideoFeed();
             await CameraInterop.DisposeAsync();
+            await base.DisposeAsync();
         }
     }
 }

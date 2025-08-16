@@ -100,14 +100,14 @@ namespace ZBar.Blazor.Components
 
         public override void Dispose()
         {
-            base.Dispose();
             ImageInterop?.Dispose();
+            base.Dispose();
         }
 
         public override async ValueTask DisposeAsync()
         {
-            await base.DisposeAsync();
             await ImageInterop.DisposeAsync();
+            await base.DisposeAsync();
         }
     }
 }

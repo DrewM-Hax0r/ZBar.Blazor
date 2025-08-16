@@ -10,7 +10,16 @@ namespace ZBar.Blazor.Components
     partial class ZBarImage : IDisposable, IAsyncDisposable
     {
         /// <summary>
-        /// Specifies the type of image output displayed from this camera.
+        /// Specifies how image data will be provided to this component. Defaults to Stream.
+        /// </summary>
+        /// <remarks>
+        /// When the SourceType is set to Stream, image data must be loaded using the LoadFromStreamAsync method.
+        /// When the SourceType is set to Url, image data must be loaded using the Src component parameter.
+        /// </remarks>
+        [Parameter] public ImageSourceType SourceType { get; set; } = ImageSourceType.Stream;
+
+        /// <summary>
+        /// Specifies the type of image output displayed from this component.
         /// </summary>
         /// <remarks>
         /// Defaults to ImageViewType.ImageFeed.
@@ -27,6 +36,11 @@ namespace ZBar.Blazor.Components
         /// </summary>
         [Parameter] public EventCallback OnImageLoadFailure { get; set; }
 
+        /// <summary>
+        /// Set this to a URL that points to a valid image to load that image. The image will be scanned immediately if AutoScan is enabled.
+        /// </summary>
+        [Parameter] public string Src { get; set; }
+
         private ImageInterop ImageInterop;
         private ElementReference Canvas;
 
@@ -40,7 +54,22 @@ namespace ZBar.Blazor.Components
 
         public override async Task SetParametersAsync(ParameterView parameters)
         {
+            bool wasSrcUpdated = false;
+            string updatedSrc = null;
+
+            ImageSourceType? updatedSourceType = null;
             bool? updatedVerbose = null;
+
+            if (parameters.TryGetValue<string>(nameof(Src), out var src) && src != Src)
+            {
+                wasSrcUpdated = true;
+                updatedSrc = src;
+            }
+
+            if (parameters.TryGetValue<ImageSourceType>(nameof(SourceType), out var sourceType) && sourceType != SourceType)
+            {
+                updatedSourceType = sourceType;
+            }
 
             if (parameters.TryGetValue<bool>(nameof(Verbose), out var verbose) && verbose != Verbose)
             {
@@ -50,7 +79,18 @@ namespace ZBar.Blazor.Components
             await base.SetParametersAsync(parameters);
 
             // Call async methods after all reads to ParameterView have completed to avoid stale ParameterView context
-            await UpdateJsConfiguration(updatedVerbose);
+            await UpdateJsConfiguration(updatedSourceType, updatedVerbose);
+
+            var newSrcSet = wasSrcUpdated && SourceType == ImageSourceType.Url;
+            var reloadExistingSrc = updatedSourceType.HasValue && updatedSourceType.Value == ImageSourceType.Url;
+            if (newSrcSet || reloadExistingSrc)
+            {
+                var srcToUse = Src?.Trim();
+                if (!string.IsNullOrWhiteSpace(srcToUse))
+                {
+                    await ImageInterop.LoadFromUrlAsync(srcToUse, Canvas, ScannerOptions.Export(), Verbose);
+                }
+            }
         }
 
         internal async Task ImageLoadSuccess()
@@ -64,7 +104,8 @@ namespace ZBar.Blazor.Components
         /// </summary>
         public async Task LoadFromStreamAsync(Stream stream)
         {
-            await ImageInterop.LoadFromStreamAsync(stream, Canvas, ScannerOptions.Export(), Verbose);
+            if (SourceType == ImageSourceType.Stream)
+                await ImageInterop.LoadFromStreamAsync(stream, Canvas, ScannerOptions.Export(), Verbose);
         }
 
         /// <summary>
@@ -90,8 +131,13 @@ namespace ZBar.Blazor.Components
             else return "display: none;";
         }
 
-        private async Task UpdateJsConfiguration(bool? verbose)
+        private async Task UpdateJsConfiguration(ImageSourceType? sourceType, bool? verbose)
         {
+            if (sourceType.HasValue)
+            {
+                await ImageInterop.ClearCanvas(Canvas);
+            }
+
             if (verbose.HasValue)
             {
                 await ImageInterop.UpdateVerbosity(Canvas, verbose.Value);

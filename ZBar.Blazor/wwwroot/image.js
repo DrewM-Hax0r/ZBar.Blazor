@@ -26,6 +26,25 @@ export async function loadFromStream(dotnetImage, streamWrapper, canvas, scanner
     }
 }
 
+export async function loadFromUrl(dotnetImage, imageUrl, canvas, scannerOptions, verbose) {
+    let image = new Image();
+
+    image.addEventListener('error', function () {
+        dotnetImage.invokeMethodAsync('OnImageLoadFailure');
+    });
+
+    image.src = imageUrl;
+    image.onload = () => {
+        updateScannerContext(canvas, image, scannerOptions, verbose).then(function () {
+            const canvasContext = getCanvasContext(canvas);
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
+            canvasContext.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight);
+            dotnetImage.invokeMethodAsync('OnImageLoadSuccess');
+        });
+    }
+}
+
 export function scanImage(dotNetScanner, canvas) {
     const scannerContext = activeImageScannerContexts[canvas];
     if (scannerContext && scannerContext.image) {
@@ -35,6 +54,11 @@ export function scanImage(dotNetScanner, canvas) {
             dotNetScanner.invokeMethodAsync('OnAfterScan', results);
         });
     }
+}
+
+export function clearCanvas(canvas) {
+    const canvasContext = getCanvasContext(canvas);
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 export function updateVerbosity(canvas, value) {

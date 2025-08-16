@@ -20,6 +20,8 @@ namespace ZBar.Blazor.Sandbox.Pages
         private bool ImageLoadFailed;
         private bool ScanEnabled;
 
+        private ImageSourceType SourceType { get; set; } = ImageSourceType.Stream;
+        private string ImageSrc { get; set; } = "";
         private bool AutoScan { get; set; } = true;
         private BarcodeType ScanFor { get; set; } = BarcodeType.UPC_A;
         private int MinValueLength { get; set; } = 0;

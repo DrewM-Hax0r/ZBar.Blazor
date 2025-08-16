@@ -1,12 +1,17 @@
 ﻿::deep .zBarImage {
     width: 100%;
-    height: calc(100% - 350px);
+    height: calc(100% - 430px);
 }
 
 .section {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+.subnote {
+    font-size: 14px;
+    color: gray;
 }
 
 .errorText {
@@ -24,10 +29,15 @@
     flex-wrap: wrap;
 }
 
-.section.foundBarcodes {
+.section.foundBarcodes,
+.section .urlSection {
     display: flex;
     flex-direction: column;
     max-width: 535px;
+}
+
+.imageUrl {
+    min-width: 300px;
 }
 
 .barcodes {

@@ -22,7 +22,7 @@ namespace ZBar.Blazor.Components
         [Parameter] public int ScanInterval { get; set; } = 1000;
 
         /// <summary>
-        /// Specifies the type of video output displayed from this camera.
+        /// Specifies the type of video output displayed from this component.
         /// </summary>
         /// <remarks>
         /// Defaults to CameraViewType.ScannerFeed.
